@@ -39,7 +39,7 @@ function B() {
 
   const drop = useDrop(() => ({
     config: {
-      acceptType: new Set(['A']),
+      acceptType: new Set([ 'A' ])
     },
     dragEnter() {
       console.log('A进入了B的范围')

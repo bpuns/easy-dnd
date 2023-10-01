@@ -37,7 +37,6 @@ type IDropHooksParams<Data, Rubbish> = Omit<IDropCoreConstructorParams<Data, Rub
   config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context'>
 }
 
-
 class Drag<Data = any, Rubbish = any> extends DragCore<Data, Rubbish> {
 
   dragRef = (dom: any) => {
