@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "target": "es2018",
+    "lib": [
+      "DOM",
+      "es2020"
+    ],
+    "downlevelIteration": true,
+    "noImplicitAny": false,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": false,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "removeComments": false,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "noFallthroughCasesInSwitch": true,
+    "noEmit": true,
+    "baseUrl": "./",
+    "paths": {
+      "dnd": [
+        "src/index",
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ]
+}
