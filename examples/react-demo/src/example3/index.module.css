@@ -1,0 +1,10 @@
+.dropItem {
+  height  : 30px;
+  border  : 1px solid #000;
+  display : flex;
+}
+
+.dragItem {
+  background  : #968f8f;
+  margin-right: 10px;
+}

@@ -1,0 +1,17 @@
+* {
+  margin : 0;
+  padding: 0;
+}
+
+.change-button {
+  padding      : 10px 0;
+  border-bottom: 1px solid rgb(158, 158, 158);
+}
+
+.app-button {
+  margin: 0 10px;
+}
+
+.app-button-selected {
+  box-shadow: 0 0 5px 1px red
+}

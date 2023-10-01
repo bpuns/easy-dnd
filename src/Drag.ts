@@ -143,7 +143,7 @@ export class Drag<Data = any, Rubbish = any> implements DragDropBase {
     context.dragType = config.type
     context.dragDom = this.dragDom
     context.dropInstance = null
-    context.dragData = config.data()
+    context.dragData = config.data?.()
     // unSubscribe的时候要用
     this.#isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 

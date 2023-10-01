@@ -1,15 +1,12 @@
 import { defineConfig } from 'vite'
 import { join } from 'node:path'
-import react from '@vitejs/plugin-react'
-
-// console.log(im)
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [vue()],
   resolve: {
     alias: {
       'easy-dnd': join(__dirname, '../../build'),
-      // 'easy-dnd/react': '../../build/react',
     }
   }
 })

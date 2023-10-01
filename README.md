@@ -3,14 +3,14 @@
 安装之前，先把`npm`源切换到公司下：http://192.168.43.54:8081/repository/npm/，然后安装
 
 ```shell
-$ npm i bpm-dnd
+$ npm i easy-dnd/react
 ```
 
-`bpm-dnd`不止可以在`React`下使用，它可以在全部的前端框架下运行，甚至可以直接在原生下运行（需要二次开发，目前只实现了`React`与原生）
+`easy-dnd/react`不止可以在`React`下使用，它可以在全部的前端框架下运行，甚至可以直接在原生下运行（需要二次开发，目前只实现了`React`与原生）
 
 <img src="image/image-20220713083509650.png" alt="image-20220713083509650" style="zoom:80%;" />
 
-`bpm-dnd`出现的目的，是为了解决原生拖拽方法的问题，在复杂情况下，原生方法如果不做一点处理，几乎是不可用的。因此，`bpm-dnd`应运而生，并且屏蔽了原生事件的一些摸不着头脑的问题，且性能优异（此处需要`diss`一下`react-dnd`，难用，并且触发机制比原生还摸不到头脑）
+`easy-dnd/react`出现的目的，是为了解决原生拖拽方法的问题，在复杂情况下，原生方法如果不做一点处理，几乎是不可用的。因此，`easy-dnd/react`应运而生，并且屏蔽了原生事件的一些摸不着头脑的问题，且性能优异（此处需要`diss`一下`react-dnd`，难用，并且触发机制比原生还摸不到头脑）
 
 如果只想在`React`下运行，以下几个方法就足够我们使用
 
@@ -62,7 +62,7 @@ class B extends Component {
 
 ![image-20220712175051204](image/image-20220712175051204.png)
 
-现在想要实现，`A`可以拖拽，并且，`A`拖动到`B`中的时候，松开`A`，`B`能接收到`A`放置的提示，那么在`bpm-dnd`中可以这么写
+现在想要实现，`A`可以拖拽，并且，`A`拖动到`B`中的时候，松开`A`，`B`能接收到`A`放置的提示，那么在`easy-dnd/react`中可以这么写
 
 ### 第一步
 
@@ -70,7 +70,7 @@ class B extends Component {
 
 ```jsx
 import ReactDom from 'react-dom'
-import { DndProvider } from 'bpm-dnd'
+import { DndProvider } from 'easy-dnd/react'
 import { Component } from 'react'
 
 .......
@@ -89,7 +89,7 @@ ReactDom.render(
 给`A`绑定一个`Drag`实例
 
 ```jsx
-import { Drag, DndContext } from 'bpm-dnd'
+import { Drag, DndContext } from 'easy-dnd/react'
 import { Component } from 'react'
 
 class A extends Component {
@@ -157,7 +157,7 @@ class A extends Component {
 给`B`绑定一个`Drop`类
 
 ```jsx
-import { Drop, DndContext } from 'bpm-dnd'
+import { Drop, DndContext } from 'easy-dnd/react'
 import { Component } from 'react'
 
 class B extends Component {
@@ -224,7 +224,7 @@ class B extends Component {
 
 ![image-20220712221841470](image/image-20220712221841470.png)
 
-这个`type`在`Drop`实例中，和`acceptType`关联起来了。这样，`bpm-dnd`就知道，"哪些元素"可以放置在"哪些元素"中
+这个`type`在`Drop`实例中，和`acceptType`关联起来了。这样，`easy-dnd/react`就知道，"哪些元素"可以放置在"哪些元素"中
 
 ![image-20220712222018576](image/image-20220712222018576.png)
 
@@ -509,13 +509,13 @@ interface IDnDProvider<Data, Rubbish> {
 }
 ```
 
-其中，大部分的属性都是`bpm-dnd`内部使用，一般开发使用不到
+其中，大部分的属性都是`easy-dnd/react`内部使用，一般开发使用不到
 
 
 
 # 3	hooks组件中的使用
 
-如果你不习惯使用类组件，`bpm-dnd`同样提供了`hooks`可以选择
+如果你不习惯使用类组件，`easy-dnd/react`同样提供了`hooks`可以选择
 
 ## 3.1	useDrag
 

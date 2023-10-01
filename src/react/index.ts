@@ -1,6 +1,7 @@
 import {
   useMemo,
   useEffect,
+  createElement,
   useContext,
   createContext,
   PureComponent,
@@ -25,7 +26,7 @@ type IDragHooksParams<Data, Rubbish> = Omit<IDragCoreConstructorParams<Data, Rub
 }
 
 type IDropHooksParams<Data, Rubbish> = Omit<IDropCoreConstructorParams<Data, Rubbish>, 'config'> & {
-  config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context' | 'bindDrag'>
+  config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context'>
 }
 
 interface IDndProviderProps {
@@ -49,14 +50,17 @@ class DndProvider extends PureComponent<IDndProviderProps> {
 
   render() {
     return (
-      <DndContext.Provider value={this.dndCtx} >
-        {this.props.children}
-      </DndContext.Provider>
+      createElement(
+        DndContext.Provider,
+        {
+          value: this.dndCtx,
+          children: this.props.children
+        }
+      )
     )
   }
 
 }
-
 
 class Drag<Data = any, Rubbish = any> extends DragCore<Data, Rubbish> {
 
@@ -82,8 +86,6 @@ class Drop<Data = any, Rubbish = any> extends DropCore<Data, Rubbish> {
       }
     }
     this.registerDom(forwardRef!)
-    // 下面这行代码是为了行为统一，本质上没什么作用
-    // return useless
   }
 
 }

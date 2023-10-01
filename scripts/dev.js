@@ -2,6 +2,7 @@ const { join } = require('node:path')
 const { rollup, watch } = require('rollup')
 const typescript = require('rollup-plugin-typescript2')
 const replaceImports = require('rollup-plugin-replace-imports')
+const tsTransformPaths = require('ts-transform-paths')
 const { terser } = require('rollup-plugin-terser')
 // const copy = require('rollup-plugin-copy')
 
@@ -58,7 +59,7 @@ watch({
   })
 
 watch({
-  input: join(__dirname, '../src/react/index.tsx'),
+  input: join(__dirname, '../src/react/index.ts'),
   output: {
     file: join(__dirname, '../build/react/index.js'),
     format: 'es',
@@ -84,15 +85,82 @@ watch({
       }
     })
   ],
-  external: ['react', 'react/jsx-runtime','dnd']
+  external: ['react', 'react/jsx-runtime', 'dnd']
 })
   .on('event', event => {
     // 监听构建事件
     if (event.code === 'START') {
-      console.log('开始构建...');
+      console.log('core开始构建...');
     } else if (event.code === 'END') {
-      console.log('构建结束.');
+      console.log('core构建结束.');
     } else if (event.code === 'ERROR') {
-      console.error('构建时发生错误:', event.error);
+      console.error('core构建时发生错误:', event.error);
+    }
+  })
+
+
+watch({
+  input: join(__dirname, '../src/index.ts'),
+  output: {
+    file: join(__dirname, '../build/index.js'),
+    format: 'es',
+    sourcemap: false
+  },
+  plugins: [
+    terser({
+      compress: true,
+      ie8: false,
+    }),
+    typescript(),
+  ]
+})
+  .on('event', event => {
+    // 监听构建事件
+    if (event.code === 'START') {
+      console.log('react开始构建...');
+    } else if (event.code === 'END') {
+      console.log('react构建结束.');
+    } else if (event.code === 'ERROR') {
+      console.error('react构建时发生错误:', event.error);
+    }
+  })
+
+watch({
+  input: join(__dirname, '../src/vue/index.ts'),
+  output: {
+    file: join(__dirname, '../build/vue/index.js'),
+    format: 'es',
+    sourcemap: false
+  },
+  plugins: [
+    replaceImports((n) => {
+      if (n === 'dnd') {
+        return '../'
+      }
+      return n
+    }),
+    terser({
+      compress: true,
+      ie8: false,
+    }),
+    typescript({
+      tsconfig: join(__dirname, '../tsconfig.json'),
+      tsconfigOverride: {
+        compilerOptions: {
+          declaration: false
+        }
+      }
+    })
+  ],
+  external: ['vue', 'dnd']
+})
+  .on('event', event => {
+    // 监听构建事件
+    if (event.code === 'START') {
+      console.log('vue开始构建...');
+    } else if (event.code === 'END') {
+      console.log('vue构建结束.');
+    } else if (event.code === 'ERROR') {
+      console.error('vue构建时发生错误:', event.error);
     }
   })

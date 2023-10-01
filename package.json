@@ -1,22 +1,33 @@
 {
-  "name": "bpm-dnd",
-  "version": "1.0.2-beta3",
+  "name": "easy-dnd",
+  "version": "1.0.0-beta2023100101",
   "scripts": {
-    "start": "rollup --config rollup.config.js --watch",
+    "dev": "node ./scripts/dev.js",
+    "devReactDemo": "npm --workspace react-demo start",
+    "devVueDemo": "npm --workspace vue-demo start",
     "build": "rollup --config rollup.config.js",
     "publish": "node ./publish.js"
   },
+  "workspaces": [
+    "examples/*"
+  ],
   "devDependencies": {
     "@types/react": "17.0.2",
+    "@vitejs/plugin-vue": "^4.3.4",
     "react": "17.0.2",
+    "react-dom": "17.0.2",
     "rollup": "2.55.1",
     "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-replace-imports": "^1.0.0",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
+    "ts-transform-paths": "^3.0.0",
     "tslib": "2.4.0",
     "typescript": "5.0.4",
-    "vue": "^3.3.4",
-    "rollup-plugin-replace-imports": "^1.0.0",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "vue": "^3.3.4"
+  },
+  "dependencies": {
+    "sass": "^1.68.0"
   }
 }
