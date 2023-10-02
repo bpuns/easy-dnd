@@ -3,7 +3,7 @@ import { BIND_DRAG, isElement, createDragMonitor } from './utils'
 
 type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
 
-export class Drag<Data = any, Rubbish = any> implements DragDropBase {
+export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
 
   /** 用于绑定drag的dom函数 */
   dragDom!: HTMLElement

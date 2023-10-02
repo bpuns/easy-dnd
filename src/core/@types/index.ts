@@ -1,4 +1,4 @@
-import type { Drop } from '../Drop'
+import type { DropCore } from '../DropCore'
 
 /** 拖拽模式 */
 enum DND_MODE {
@@ -21,7 +21,7 @@ interface IDnDProvider<Data, Rubbish> {
   /** 拖拽元素的data */
   dragData: Data
   /** 某个元素执行了drop，那么这个drop的实例就会存储在这里，在整个拖拽生命周期结束后，此变量也会被删除 */
-  dropInstance: Drop | null
+  dropInstance: DropCore | null
   /** 保存当前dragEnter的dom是哪一个，解决 doc/拖拽研究.md 2.4 问题 */
   enterDom: HTMLElement
   /** dragEnter延时多长事件触发, 解决 doc/拖拽研究.md 2.4 问题 */
@@ -172,6 +172,15 @@ abstract class DragDropBase {
   abstract unSubscribe: () => void
 }
 
+/** 把context取出来，hooks中不需要加入context */
+type IDragHooksParams<Data, Rubbish> = Omit<IDragCoreConstructorParams<Data, Rubbish>, 'config'> & {
+  config: Omit<IDragCoreConstructorParams<Data, Rubbish>['config'], 'context'>
+}
+
+type IDropHooksParams<Data, Rubbish> = Omit<IDropCoreConstructorParams<Data, Rubbish>, 'config'> & {
+  config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context'>
+}
+
 export {
   DND_MODE
 }
@@ -182,5 +191,7 @@ export type {
   IDragCoreConstructorParams,
   IDropCoreMonitor,
   IDropCoreConstructorParams,
-  DragDropBase
+  DragDropBase,
+  IDragHooksParams,
+  IDropHooksParams
 }

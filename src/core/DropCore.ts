@@ -4,7 +4,7 @@ import { BIND_DRAG, isElement, createDropMonitor } from './utils'
 
 type DropClassName = IDropCoreConstructorParams<any, any>['config']['className']
 
-export class Drop<Data = any, Rubbish = any> implements DragDropBase {
+export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
 
   /** 用于绑定drop的dom函数 */
   dropDom!: HTMLElement

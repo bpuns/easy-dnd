@@ -11,23 +11,16 @@ import {
   type IDnDProvider,
   type IDragCoreConstructorParams,
   type IDropCoreConstructorParams,
+  type IDragHooksParams,
+  type IDropHooksParams,
   DND_MODE,
-  Drag as DragCore,
-  Drop as DropCore,
+  DragCore,
+  DropCore,
   createProvider
-} from 'dnd'
+} from 'easy-dnd'
 
 /** dnd上下文 */
 const DndContext = createContext<IDnDProvider<any, any>>(null!)
-
-/** 把context取出来，hooks中不需要加入context */
-type IDragHooksParams<Data, Rubbish> = Omit<IDragCoreConstructorParams<Data, Rubbish>, 'config'> & {
-  config: Omit<IDragCoreConstructorParams<Data, Rubbish>['config'], 'context'>
-}
-
-type IDropHooksParams<Data, Rubbish> = Omit<IDropCoreConstructorParams<Data, Rubbish>, 'config'> & {
-  config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context'>
-}
 
 interface IDndProviderProps {
   /** 拖拽类型 */
@@ -53,7 +46,7 @@ class DndProvider extends PureComponent<IDndProviderProps> {
       createElement(
         DndContext.Provider,
         {
-          value: this.dndCtx,
+          value:    this.dndCtx,
           children: this.props.children
         }
       )
@@ -92,7 +85,7 @@ class Drop<Data = any, Rubbish = any> extends DropCore<Data, Rubbish> {
 
 const _deep: any[] = []
 
-const dragEvent = ['dragStart', 'dragEnd', 'drag']
+const dragEvent = [ 'dragStart', 'dragEnd', 'drag' ]
 
 function useDrag<Data = {}, Rubbish = {}>(
   operate: () => IDragHooksParams<Data, Rubbish>,
@@ -131,7 +124,7 @@ function useDrag<Data = {}, Rubbish = {}>(
 
 }
 
-const dropEvent = ['dragStart', 'dragEnd', 'drop', 'dragEnter', 'dragOver', 'dragLeave']
+const dropEvent = [ 'dragStart', 'dragEnd', 'drop', 'dragEnter', 'dragOver', 'dragLeave' ]
 
 function useDrop<Data = {}, Rubbish = {}>(
   operate: () => IDropHooksParams<Data, Rubbish>,

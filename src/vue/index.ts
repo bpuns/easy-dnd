@@ -3,22 +3,24 @@ import {
   type IDnDProvider,
   type IDragCoreConstructorParams,
   type IDropCoreConstructorParams,
+  type IDragHooksParams,
+  type IDropHooksParams,
   DND_CTX,
   DND_MODE,
-  Drag as DragCore,
-  Drop as DropCore,
+  DragCore,
+  DropCore,
   createProvider
-} from 'dnd'
+} from 'easy-dnd'
 
 /** dnd上下文 */
 export const DndProvider = defineComponent({
-  name: 'DndProvider',
+  name:  'DndProvider',
   props: {
     type: {
       default: DND_MODE.SWARAJ
     },
     delay: {
-      type: Number,
+      type:    Number,
       default: 0
     }
   },
@@ -27,15 +29,6 @@ export const DndProvider = defineComponent({
     return () => slots.default ? slots.default() : null
   }
 })
-
-/** 把context取出来，hooks中不需要加入context */
-type IDragHooksParams<Data, Rubbish> = Omit<IDragCoreConstructorParams<Data, Rubbish>, 'config'> & {
-  config: Omit<IDragCoreConstructorParams<Data, Rubbish>['config'], 'context'>
-}
-
-type IDropHooksParams<Data, Rubbish> = Omit<IDropCoreConstructorParams<Data, Rubbish>, 'config'> & {
-  config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context'>
-}
 
 class Drag<Data = any, Rubbish = any> extends DragCore<Data, Rubbish> {
 
