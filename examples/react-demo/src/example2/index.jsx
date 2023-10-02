@@ -17,14 +17,11 @@ function A() {
 
   const dragInstance = useDrag(() => ({
     config: {
-      type: 'A',
-      data: () => inputRef.current.value
-    },
-    dragStart() {
-      dragInstance.dragDom.style.opacity = '.2'
-    },
-    dragEnd() {
-      dragInstance.dragDom.style.opacity = '1'
+      type:      'A',
+      data:      () => inputRef.current.value,
+      className: {
+        dragging: 'dragging'
+      }
     }
   }), [])
 

@@ -22,7 +22,10 @@ function A() {
     config: {
       type:             'A',
       defaultDraggable: allowDrag,
-      data:             () => '数据'
+      data:             () => '数据',
+      className:        {
+        hover: 'hover'
+      }
     }
   }))
 
@@ -37,7 +40,7 @@ function A() {
         ref={dragInstance.dragRef}
         style={{ width: 100, height: 100, border: '1px dashed #000' }}
       >
-        盒子B
+        盒子A
       </div>
     </div>
   )

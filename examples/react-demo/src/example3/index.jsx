@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DndProvider, useDrag, useDrop } from 'easy-dnd/react'
 import './index.css'
 
@@ -14,7 +14,7 @@ function List() {
 
   const [ list, setList ] = useState([ 'a', 'b', 'c', 'd', 'e', 'f' ])
 
-  const onDragEnd = useCallback((fromIndex, toIndex, isTop) => {
+  const onDragEnd = (fromIndex, toIndex, isTop) => {
     // 有两种情况不需要调换位置
     // 向上拖拽，并且toIndex就在fromIndex的上面
     if (isTop && fromIndex === toIndex - 1) return
@@ -26,7 +26,7 @@ function List() {
     newList.splice(toIndex, 0, removeItem[0])
     setList(newList)
 
-  }, [ list ])
+  }
 
   return (
     <ul className='example3'>
@@ -49,15 +49,12 @@ function Item({ value, index, onDragEnd }) {
 
   const dragInstance = useDrag(() => ({
     config: {
-      type: 'list',
+      type:      'list',
       // 把索引作为存放数据
-      data: () => index
-    },
-    dragStart() {
-      dragInstance.dragDom.style.opacity = '.2'
-    },
-    dragEnd() {
-      dragInstance.dragDom.style.opacity = '1'
+      data:      () => index,
+      className: {
+        dragging: 'dragging'
+      }
     }
   }), [ index ])
 

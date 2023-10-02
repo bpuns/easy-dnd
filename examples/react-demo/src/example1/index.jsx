@@ -13,7 +13,13 @@ function A() {
 
   const drag = useDrag(() => ({
     config: {
-      type: 'A'
+      type:      'A',
+      className: {
+        // 鼠标移入时要添加的样式名
+        hover:    'hover',
+        // 拖拽中要添加的样式名
+        dragging: 'dragging'
+      }
     },
     // 拖拽开始的回调
     dragStart: () => {
@@ -39,7 +45,12 @@ function B() {
 
   const drop = useDrop(() => ({
     config: {
-      acceptType: new Set([ 'A' ])
+      acceptType: new Set([ 'A' ]),
+      // 样式
+      className:  {
+        // 可放置元素进入改dom访问的时候
+        dragEnter: 'dragEnter'
+      }
     },
     dragEnter() {
       console.log('A进入了B的范围')

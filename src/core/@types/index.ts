@@ -51,7 +51,7 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
     /** 当前拖拽元素的类型 */
     type: IDnDProvider<Data, Rubbish>['dragType']
     /** 拖拽元素携带的数据 */
-    data: () => Data
+    data?: () => Data
     /** 动态添加的className */
     className?: {
       /** 鼠标移入的时候添加的className */

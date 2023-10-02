@@ -61,7 +61,7 @@ class Drag<Data = any, Rubbish = any> extends DragCore<Data, Rubbish> {
   hooksFirst = true
 
   dragRef = (dom: HTMLElement | null) => {
-    this.dragDom = dom!
+    this.registerDom(dom!)
     return dom
   }
 
@@ -162,6 +162,8 @@ function useDrop<Data = {}, Rubbish = {}>(
   return dropInstance
 
 }
+
+export * from 'easy-dnd'
 
 export {
   useDrag,

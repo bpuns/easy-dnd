@@ -18,18 +18,18 @@ function App() {
     Example4,
     Example5
   ])
+
   const [ select, setSelect ] = useState(() => {
     const select = Number(localStorage.getItem(STORAGE_KEY))
     if (select < exampleList.length) return select
     return 0
   })
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, String(select))
-  }, [ select ])
+  useEffect(() => localStorage.setItem(STORAGE_KEY, String(select)), [ select ])
 
   return (
     <>
+      <h2>React</h2>
       <div className='change-button'>
         {
           exampleList.map((example, index) => (

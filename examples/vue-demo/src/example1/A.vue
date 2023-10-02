@@ -1,21 +1,11 @@
 <template>
-  <button @click="onAdd">{{ count }}</button>
   <div :ref="drag.dragRef" class="a">
     盒子A
   </div>
-  <B></B>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import B from './B.vue'
-import { useDrag } from './utils';
-
-const count = ref(0)
-
-const onAdd = () => {
-  count.value++
-}
+import { useDrag } from 'easy-dnd/vue'
 
 const drag = useDrag({
   config: {
@@ -33,11 +23,11 @@ const drag = useDrag({
   },
   // 拖拽开始的回调
   dragStart: () => {
-    // console.log('A 开始拖拽')
+    console.log('A 开始拖拽')
   },
   // 拖拽结束的回调
   dragEnd: () => {
-    // console.log('A 结束拖拽')
+    console.log('A 结束拖拽')
   }
 })
 
@@ -48,13 +38,5 @@ const drag = useDrag({
   width: 50px;
   height: 50px;
   border: 1px solid rgb(0, 0, 0);
-}
-
-:global(.hover) {
-  box-shadow: 0px 0px 5px 1px rgb(0, 0, 0, 1)
-}
-
-:global(.dragging) {
-  opacity: 0.5;
 }
 </style>

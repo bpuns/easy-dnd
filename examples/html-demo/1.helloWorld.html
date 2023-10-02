@@ -52,7 +52,7 @@
 
   <script type="module">
 
-    import { createProvider, DND_MODE, Drop, Drag } from 'easy-dnd'
+    import { createProvider, DND_MODE, DropCore, DragCore } from 'easy-dnd'
 
     // 创建拖拽上下文
     const context = createProvider()
@@ -60,7 +60,7 @@
     const DRAG_TYPE = 'A'
 
     // 创建拖拽实例
-    const drag = new Drag({
+    const drag = new DragCore({
       config: {
         // 把上下文放在这里
         context,
@@ -89,7 +89,7 @@
       .subscribe()
 
     // 创建放置实例
-    const drop = new Drop({
+    const drop = new DropCore({
       config: {
         // 把上下文放在这里
         context,

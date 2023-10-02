@@ -1,4 +1,10 @@
-import { inject, onMounted, onBeforeUnmount, defineComponent, provide } from 'vue'
+import {
+  inject,
+  provide,
+  onMounted,
+  onBeforeUnmount,
+  defineComponent
+} from 'vue'
 import {
   type IDnDProvider,
   type IDragCoreConstructorParams,
@@ -33,7 +39,7 @@ export const DndProvider = defineComponent({
 class Drag<Data = any, Rubbish = any> extends DragCore<Data, Rubbish> {
 
   dragRef = (dom: any) => {
-    this.dragDom = dom!
+    this.registerDom(dom!)
     return dom
   }
 
@@ -43,7 +49,7 @@ class Drop<Data = any, Rubbish = any> extends DropCore<Data, Rubbish> {
 
   public dropRef = (forwardRef: any | null | Drag<any, any>['dragRef']) => {
     if (typeof forwardRef === 'function') {
-      return (dom: HTMLElement | null) => {
+      return (dom: any) => {
         this.registerDom((forwardRef as Drag<any, any>['dragRef'])(dom)!)
       }
     }
@@ -91,6 +97,8 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>) {
   return drop
 
 }
+
+export * from 'easy-dnd'
 
 export {
   useDrag,

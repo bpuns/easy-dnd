@@ -54,7 +54,10 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   registerDom = (dom: HTMLElement) => {
     this.dragDom = dom
     if (isElement(dom)) {
-      dom[BIND_DRAG] = true
+      Object.defineProperty(dom, BIND_DRAG, {
+        configurable: false,
+        value:        true
+      })
     }
     return this
   }
@@ -121,14 +124,14 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   }
 
   #mouseenter = () => {
-    if (!this.context.dragDom) {
+    if (!this.context.dragDom && this.#draggable) {
       this.#isHover = true
       this.#editClass('add', 'hover')
     }
   }
 
   #mouseleave = () => {
-    if (this.#isHover) {
+    if (this.#isHover && this.#draggable) {
       this.#isHover = false
       this.#editClass('remove', 'hover')
     }

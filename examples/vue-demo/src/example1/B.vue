@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 
-import { useDrop } from './utils'
+import { useDrop } from 'easy-dnd/vue'
 
 const drop = useDrop({
   config: {
@@ -19,17 +19,17 @@ const drop = useDrop({
     }
   },
   dragEnter() {
-    // console.log('A进入了B的范围')
+    console.log('A进入了B的范围')
   },
   // A放置时触发的回调
   drop(monitor) {
     console.log('A放置在B上', '存放的数据:' + monitor.getDragData())
   },
   dragOver() {
-    // console.log('A在B中移动')
+    console.log('A在B中移动')
   },
   dragLeave() {
-    // console.log('A离开了B的范围')
+    console.log('A离开了B的范围')
   }
 })
 
@@ -40,9 +40,5 @@ const drop = useDrop({
   width: 100px;
   height: 100px;
   border: 1px dashed rgb(0, 0, 0)
-}
-
-:global(.dragEnter) {
-  box-shadow: 0px 0px 5px 1px rgba(181, 206, 255, 1)
 }
 </style>

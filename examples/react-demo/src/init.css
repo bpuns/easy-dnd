@@ -15,3 +15,15 @@
 .app-button-selected {
   box-shadow: 0 0 5px 1px red
 }
+
+.hover {
+  box-shadow: 0px 0px 5px 1px rgb(0, 0, 0, 1)
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+.dragEnter {
+  box-shadow: 0px 0px 5px 1px rgba(181, 206, 255, 1)
+}
