@@ -1,0 +1,73 @@
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<style>
+  .a {
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgb(0, 0, 0);
+  }
+
+  .b {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed rgb(0, 0, 0)
+  }
+</style>
+
+<div class="a">
+  盒子A
+</div>
+
+<div class="b">
+  盒子B
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore
+  } from 'easy-dnd'
+
+  const context = createProvider()
+
+const DRAG_TYPE = 'a'
+
+const drag = new DragCore({
+  config: {
+    type: DRAG_TYPE,
+    context
+  }
+})
+  .registerDom(document.querySelector('.a'))
+  .subscribe()
+
+const drop = new DropCore({
+  config: {
+    context,
+    acceptType: new Set([DRAG_TYPE]),
+  }
+})
+  .registerDom(document.querySelector('.b'))
+  .subscribe()
+
+// 卸载
+drag.unSubscribe()
+drop.unSubscribe()
+
+// 可以再次绑定
+drag
+  .registerDom(document.querySelector('.a'))
+  .subscribe()
+drop
+  .registerDom(document.querySelector('.b'))
+  .subscribe()
+
+</script>
