@@ -1,0 +1,38 @@
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<button>允许拖拽</button>
+
+<div class="drag-box" style="border: 1px double;width:100px; margin: 50px">
+  dragItem
+</div>
+
+<script type="module">
+
+  import { createProvider, DragCore, DropCore } from 'easy-dnd'
+
+  const context = createProvider()
+
+  const DRAG_TYPE = 'a'
+
+  const drag = new DragCore({
+    config: {
+      defaultDraggable: false,
+      type: DRAG_TYPE,
+      context
+    }
+  })
+    .registerDom(document.querySelector('.drag-box'))
+    .subscribe()
+
+  document.querySelector('button').onclick = e => {
+    drag.draggable = !drag.draggable
+    e.currentTarget.innerText = `${drag.draggable ? '关闭' : '开启'}拖拽`
+  }
+
+</script>

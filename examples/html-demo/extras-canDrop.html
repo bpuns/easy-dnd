@@ -24,6 +24,8 @@
   }
 </style>
 
+<button>关闭放置</button>
+
 <div class="drag-box" style="border: 1px double;width:100px; margin: 50px">
   dragItem
 </div>
@@ -38,6 +40,13 @@
 
   const context = createProvider()
 
+  let canDrop = true
+
+  document.querySelector('button').onclick = e => {
+    canDrop = !canDrop
+    e.currentTarget.innerText = `${canDrop ? '关闭' : '开启'}放置`
+  }
+
   const DRAG_TYPE = 'a'
 
   const drop = new DropCore({
@@ -49,6 +58,10 @@
         dragEnter: 'dnd-dragEnter',
         // 允许放置的元素开始拖拽时添加的className
         canDrop: 'dnd-canDrop'
+      },
+      canDrop: () => {
+        // 返回false表示不允许拖拽
+        return canDrop
       }
     }
   })

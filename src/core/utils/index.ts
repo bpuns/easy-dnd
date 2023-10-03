@@ -30,33 +30,35 @@ export function createDropMonitor<Data, Rubbish>(instance: DropCore<Data, Rubbis
 
   const getDomRect = () => instance.dropDom.getBoundingClientRect()
 
+  const getCtx = () => instance.context
+
   const canDropMonitor = {
     event:           null!,
-    getContext:      () => instance.context,
-    getDropInstance: () => instance.context.dropInstance,
-    getDragType:     () => instance.context.dragType,
-    getDragData:     () => instance.context.dragData
+    getContext:      getCtx,
+    getDropInstance: () => getCtx().dropInstance,
+    getDragType:     () => getCtx().dragType,
+    getDragData:     () => getCtx().dragData
   }
 
   return {
     ...canDropMonitor,
-    getDragDom: () => instance.context.dragDom,
+    getDragDom: () => getCtx().dragDom,
     getDomRect,
     isOverTop:  (domRect?: DOMRect, middleExists?: boolean) => {
       const { y, height } = domRect || getDomRect()
-      return instance.context.dragCoord.y < (y + height / (middleExists ? 3 : 2))
+      return getCtx().dragCoord.y < (y + height / (middleExists ? 3 : 2))
     },
     isOverBottom: (domRect?: DOMRect, middleExists?: boolean) => {
       const { y, height } = domRect || getDomRect()
-      return instance.context.dragCoord.y > (y + height / (middleExists ? 1.5 : 2))
+      return getCtx().dragCoord.y > (y + height / (middleExists ? 1.5 : 2))
     },
     isOverLeft: (domRect?: DOMRect, middleExists?: boolean) => {
       const { x, width } = domRect || getDomRect()
-      return instance.context.dragCoord.x < (x + width / (middleExists ? 3 : 2))
+      return getCtx().dragCoord.x < (x + width / (middleExists ? 3 : 2))
     },
     isOverRight: (domRect?: DOMRect, middleExists?: boolean) => {
       const { x, width } = domRect || getDomRect()
-      return instance.context.dragCoord.x > (x + width / (middleExists ? 1.5 : 2))
+      return getCtx().dragCoord.x > (x + width / (middleExists ? 1.5 : 2))
     },
     isOverRowCenter(domRect?: DOMRect) {
       domRect = domRect || getDomRect()
@@ -66,8 +68,9 @@ export function createDropMonitor<Data, Rubbish>(instance: DropCore<Data, Rubbis
       domRect = domRect || getDomRect()
       return !this.isOverLeft(domRect, true) && !this.isOverRight(domRect, true)
     },
+    getRubbish: () => getCtx().getRubbish(),
     // @ts-ignore 给这个库自己用的
-    _s: canDropMonitor
+    _s:         canDropMonitor
   }
 }
 
@@ -75,7 +78,7 @@ interface ProviderConfig {
   /** 拖拽类型，有 SCOPE 和 SWARAJ 两种可选 */
   dndMode?: DND_MODE,
   /** 拖拽延时时间，必须大于等于0 */
-  delay?:   number
+  delay?: number
 }
 
 /**
@@ -86,6 +89,8 @@ interface ProviderConfig {
 export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay = 0 }: ProviderConfig = {}): IDnDProvider<Data, Rubbish> {
 
   if (delay < 0 || isNaN(delay)) delay = 0
+
+  const rubbish: any = {}
 
   return {
     dndMode,
@@ -103,13 +108,17 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
     dragItemDragEnds:   new Set(),
     dropItemDragStarts: new Set(),
     dropItemDragEnds:   new Set(),
-    rubbish:            {} as any
+    getRubbish:         () => rubbish
   }
 }
 
 export function createDragMonitor<Data, Rubbish>(instance: DragCore<Data, Rubbish>): IDragCoreMonitor<Data, Rubbish> {
+
+  const getCtx = () => instance.context
+
   return {
     event:      null!,
-    getContext: () => instance.context
+    getContext: getCtx,
+    getRubbish: () => getCtx().getRubbish()
   }
 }

@@ -79,7 +79,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     classValue && this.dropDom?.classList[operate](classValue)
   }
 
-  canDrop = (e: DragEvent) => {
+  canDrop = (e?: DragEvent) => {
     const { dragDom } = this.context
     // 如果dragDom不存在，说明不是同一个上下文的拖拽，阻止拖拽
     if (!dragDom) return false
@@ -91,8 +91,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       // 验证config中是否也允许拖拽
       if (this.config.canDrop) {
         if (this.config.canDrop(this.monitor['_s'])) {
-          // if (this.config.canDrop(this.monitor)) {
-          e.preventDefault()
+          e?.preventDefault()
           return true
         } else {
           return false
@@ -100,7 +99,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       }
       // 100%允许拖拽
       else {
-        e.preventDefault()
+        e?.preventDefault()
         return true
       }
     } else {
@@ -122,7 +121,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
         this.enterTimer = null!
         if (this.context.enterDom === this.dropDom) {
           this.isEnter = true
-          this.params.dragEnter && this.params.dragEnter(this.monitor)
+          this.params.dragEnter?.(this.monitor)
           this.#editClass('add', 'dragEnter')
         }
       }
@@ -144,7 +143,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       if (prePosition.x !== e.clientX || prePosition.y !== e.clientY) {
         prePosition.x = e.clientX
         prePosition.y = e.clientY
-        this.params.dragOver && this.params.dragOver(this.monitor)
+        this.params.dragOver?.(this.monitor)
       }
     }
   }
@@ -157,10 +156,10 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       if (this.enterTimer) {
         clearTimeout(this.enterTimer)
       } else {
-        if (this.isEnter){
+        if (this.isEnter) {
           this.isEnter = false
           this.#editClass('remove', 'dragEnter')
-          this.params.dragLeave && this.params.dragLeave(this.monitor)
+          this.params.dragLeave?.(this.monitor)
         }
       }
     }
@@ -171,23 +170,29 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     if (!this.canDrop(e)) return
     this.context.dropInstance = this
     this.#editClass('remove', 'dragEnter')
-    this.params.drop && this.params.drop(this.monitor)
+    this.params.drop?.(this.monitor)
   }
 
   /** 元素开始拖拽的时候触发的方法 */
   #dropItemDragStart = () => {
-    // 执行dragStart回调
-    if (this.config.acceptType.has(this.context.dragType)) {
-      this.params.dragStart && this.params.dragStart(this.monitor)
-    }
+    const { dragStart } = this.params
+    const canDrop = this.canDrop()
+    if (!canDrop) return
+    dragStart?.(this.monitor)
+    // 添加样式
+    this.#editClass('add', 'canDrop')
   }
 
   /** 元素停止拖拽的时候触发的方法，清空入栈检测 */
   #dropItemDragEnd = () => {
     // 执行dragEnd回调
-    if (this.config.acceptType.has(this.context.dragType)) {
-      this.params.dragEnd && this.params.dragEnd(this.monitor)
+    const { dragEnd } = this.params
+    const canDrop = this.canDrop()
+    if (dragEnd && canDrop) {
+      dragEnd?.(this.monitor)
     }
+    // 移除样式
+    this.#editClass('remove', 'canDrop')
     // 重置标识
     this.#stack = 0
     this.isEnter = false

@@ -34,8 +34,8 @@ interface IDnDProvider<Data, Rubbish> {
   dropItemDragStarts: Set<() => void>
   /** 用来存储被drop包裹的元素的结束事件，当有元素结束拖动的时候，会触发此方法 */
   dropItemDragEnds: Set<() => void>
-  /** 存放拖拽的时候具体业务逻辑中的一些数据 */
-  rubbish: Rubbish
+  /** 获取 存放拖拽的时候具体业务逻辑中的一些数据 */
+  getRubbish: () => Rubbish
 }
 
 /** Drag 构造函数参数 */
@@ -56,7 +56,7 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
     className?: {
       /** 鼠标移入的时候添加的className */
       hover?: string,
-      /** 该元素拖拽中触发的方法 */
+      /** 该元素拖拽中触发添加的className */
       dragging?: string
     }
     /** 设置默认是否允许拖拽   true 允许拖拽 | false 不允许拖拽，默认是true */
@@ -67,7 +67,7 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
 }
 
 /** Drag Monitor */
-interface IDragCoreMonitor<Data, Rubbish> {
+interface IDragCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbish>, 'getRubbish'> {
   /** 拖拽事件对象 */
   event: DragEvent
   /** 获取dnd上下文 */
@@ -110,9 +110,9 @@ interface IDropCoreConstructorParams<Data, Rubbish> {
     acceptType: Set<IDnDProvider<Data, Rubbish>['dragType']>
     /** 动态添加的className */
     className?: {
-      /** 允许放置的元素进入 */
+      /** 允许放置的元素进入添加的className */
       dragEnter?: string,
-      /** 允许放置的元素开始拖拽 */
+      /** 允许放置的元素开始拖拽添加的className */
       canDrop?: string
     }
     /** 上下文 */
@@ -120,7 +120,7 @@ interface IDropCoreConstructorParams<Data, Rubbish> {
   }
 }
 
-interface IDropCoreMonitor<Data, Rubbish> {
+interface IDropCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbish>, 'getRubbish'> {
   /** 获取dropDom的尺寸 */
   getDomRect: () => DOMRect
   /** 拖拽事件对象 */

@@ -53,10 +53,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   registerDom = (dom: HTMLElement) => {
     this.dragDom = dom
     if (isElement(dom)) {
-      Object.defineProperty(dom, BIND_DRAG, {
-        configurable: false,
-        value:        true
-      })
+      dom[BIND_DRAG] = true
     }
     return this
   }
@@ -91,12 +88,11 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     if (!isElement(dragDom)) {
       throw new Error('class Drag调用subscribe方法前必须调用registerDom方法')
     }
-    this.#isSubscribe = true
+    this.#toggleDraggable(this.#draggable = this.#isSubscribe = true)
     context.dragItemDragStarts.add(this.#dragItemDragStart)
     context.dragItemDragEnds.add(this.#dragItemDragEnd)
     this.#addHover()
     this.#className.hover && dragDom.addEventListener('mouseleave', this.#mouseleave)
-    this.#toggleDraggable(this.#draggable)
     dragDom.addEventListener('dragstart', this.#dragStart)
     dragDom.addEventListener('drag', this.#drag)
     dragDom.addEventListener('dragend', this.#dragEnd)
@@ -107,8 +103,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     if (!this.#isSubscribe) return
     const { dragDom, context } = this
     if (dragDom) {
-      this.#isSubscribe = false
-      this.#toggleDraggable(this.#draggable = false)
+      this.#toggleDraggable(this.#draggable = this.#isSubscribe = false)
       // 如果结束拖拽标识不为true，需要手动调用#dragEnd还原状态
       !this.#isEnd && this.#dragEnd(this.monitor.event)
       this.#removeHover()

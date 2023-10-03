@@ -6,23 +6,6 @@
   }
 </script>
 
-<style>
-  .dnd-hover {
-    box-shadow: 0px 0px 5px 1px rgb(0, 0, 0, 1)
-  }
-
-  .dnd-dragging {
-    opacity: 0.5;
-  }
-
-  .dnd-canDrop {
-    box-shadow: 0px 0px 10px 2px rgb(224, 207, 16)
-  }
-
-  .dnd-dragEnter {
-    box-shadow: 0px 0px 10px 2px rgba(181, 206, 255, 1)
-  }
-</style>
 
 <div class="drag-box" style="border: 1px double;width:100px; margin: 50px">
   dragItem
@@ -38,18 +21,16 @@
 
   const context = createProvider()
 
+  // 创建一个拖拽类型
   const DRAG_TYPE = 'a'
 
   const drop = new DropCore({
     config: {
       context,
-      acceptType: new Set([DRAG_TYPE]),
-      className: {
-        // 允许放置的元素进入时添加的className
-        dragEnter: 'dnd-dragEnter',
-        // 允许放置的元素开始拖拽时添加的className
-        canDrop: 'dnd-canDrop'
-      }
+      acceptType: new Set([DRAG_TYPE])
+    },
+    drop(monitor) {
+      console.log(monitor.getRubbish().saveData)
     }
   })
     .registerDom(document.querySelector('.drop1-box'))
@@ -58,13 +39,10 @@
   new DragCore({
     config: {
       type: DRAG_TYPE,
-      context,
-      className: {
-        // 鼠标移入时添加的className
-        hover: 'dnd-hover',
-        // 该元素拖拽中添加的className
-        dragging: 'dnd-dragging'
-      }
+      context
+    },
+    dragStart(monitor) {
+      monitor.getRubbish().saveData = 1
     }
   })
     .registerDom(document.querySelector('.drag-box'))

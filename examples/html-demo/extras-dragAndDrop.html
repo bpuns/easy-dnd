@@ -1,0 +1,65 @@
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<div class="drag-box" style="border: 1px double;width:100px; margin: 50px">
+  dragItem
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore,
+    DND_MODE
+  } from 'easy-dnd'
+
+  // 创建拖拽上下文
+  // const context = createProvider()
+  const context = createProvider(DND_MODE.SCOPE)
+
+  // 创建一个拖拽类型
+  const DRAG_TYPE = 'a'
+
+  const dragDropDom = document.querySelector('.drag-box')
+
+  const drop = new DropCore({
+    config: {
+      context,
+      acceptType: new Set([DRAG_TYPE]),
+    },
+    // 不会触发以下的任意一个drop相关的事件回调
+    dragEnter() {
+      console.log('dragEnter')
+    },
+    dragLeave() {
+      console.log('dragLeave')
+    },
+    drop() {
+      console.log('drop')
+    }
+  })
+    .registerDom(dragDropDom)
+    .subscribe()
+
+  new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context
+    },
+    dragStart() {
+      console.log('dragStart')
+    },
+    dragEnd() {
+      console.log('dragEnd')
+    }
+  })
+    .registerDom(dragDropDom)
+    .subscribe()
+
+</script>
