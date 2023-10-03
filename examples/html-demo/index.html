@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "easy-dnd": "../../build/index.js"
+      }
+    }
+  </script>
+  <style>
+    .a {
+      width: 50px;
+      height: 50px;
+      border: 1px solid rgb(0, 0, 0);
+    }
+
+    .b {
+      width: 100px;
+      height: 100px;
+      border: 1px dashed rgb(0, 0, 0)
+    }
+
+    .hover {
+      box-shadow: 0px 0px 5px 1px rgb(0, 0, 0, 1)
+    }
+
+    .dragging {
+      opacity: 0.5;
+    }
+
+    .dragEnter {
+      box-shadow: 0px 0px 5px 1px rgba(181, 206, 255, 1)
+    }
+  </style>
+</head>
+
+<body>
+
+  <button>
+    绑定拖拽事件
+  </button>
+
+  <div class="a">
+    盒子A
+  </div>
+
+  <div class="b">
+    盒子B
+  </div>
+
+  <script type="module">
+
+    import { createProvider, DND_MODE, DropCore, DragCore } from 'easy-dnd'
+
+    function createDragDrop() {
+      // 创建拖拽上下文
+      const context = createProvider()
+
+      const DRAG_TYPE = 'A'
+
+      // 创建拖拽实例
+      const drag = new DragCore({
+        config: {
+          // 非react和vue需要传一个上下文，标识当前在一个拖拽上下文下
+          context,
+          // 给拖拽元素设置一个type（任意类型都可以）
+          type: DRAG_TYPE,
+          // 拖拽元素存放的数据
+          data: () => 'A给B的数据',
+          // 样式
+          className: {
+            // 鼠标移入时要添加的样式名
+            hover: 'hover',
+            // 拖拽中要添加的样式名
+            dragging: 'dragging'
+          }
+        },
+        // 拖拽开始的回调
+        dragStart: () => {
+          console.log('A 开始拖拽')
+        },
+        // 拖拽结束的回调
+        dragEnd: () => {
+          console.log('A 结束拖拽')
+        }
+      })
+        .registerDom(document.querySelector('.a'))
+        .subscribe()
+
+      // 创建放置实例
+      const drop = new DropCore({
+        config: {
+          // 非react和vue需要传一个上下文，标识当前在一个拖拽上下文下
+          context,
+          // 设置当前控件允许放置的类型，和 new Drag 中的 config.type 一一对应
+          acceptType: new Set([DRAG_TYPE]),
+          // 样式
+          className: {
+            // 可放置元素进入改dom访问的时候
+            dragEnter: 'dragEnter'
+          }
+        },
+        dragEnter() {
+          console.log('A进入了B的范围')
+        },
+        // A放置时触发的回调
+        drop(monitor) {
+          console.log('A放置在B上', '存放的数据:' + monitor.getDragData())
+        },
+        dragOver() {
+          console.log('A在B中移动')
+        },
+        dragLeave() {
+          console.log('A离开了B的范围')
+        }
+      })
+        .registerDom(document.querySelector('.b'))
+        .subscribe()
+
+      // 卸载函数
+      return () => {
+        drag.unSubscribe()
+        drop.unSubscribe()
+      }
+
+    }
+
+    // 存储用于卸载拖拽事件的方法，释放内存
+    let unSubscribe
+
+    function toggleBindDragAndDrop(e) {
+      if (unSubscribe) {
+        unSubscribe()
+        unSubscribe = null
+      } else {
+        unSubscribe = createDragDrop()
+      }
+      e.currentTarget.innerText = `${unSubscribe ? '卸载' : '绑定'}拖拽事件`
+    }
+
+    // document.querySelector('button').onclick = function (e) {
+    //   for (let i = 0; i < 10000; i++) {
+    //     toggleBindDragAndDrop(e)
+    //   }
+    // }
+    document.querySelector('button').onclick = toggleBindDragAndDrop
+
+  </script>
+</body>
+
+</html>

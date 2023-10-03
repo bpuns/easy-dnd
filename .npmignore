@@ -26,7 +26,7 @@ package-dev.json
 package-prod.json
 package-lock.json
 
-# .eslintrc.js
+.eslintrc.js
 
 ./index.html
 ./test.js
@@ -39,11 +39,8 @@ package-lock.json
 
 ./TODO
 
-/easyManageFrontend
-/demo
+/examples
 
-/.bpDB
+/scripts
 
-/demo
-
-/image
+/images
