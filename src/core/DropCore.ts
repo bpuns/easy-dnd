@@ -22,7 +22,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   enterTimer!: number
   /** 记录上一次dragover的clientX与clientY的位置，避免重复执行dragOver */
   prePosition = { x: 0, y: 0 }
-  /** 解决1.2问题 */
+  /** 解决子节点重复事件冒泡问题 */
   #stack = 0
   /** 判断是否注册过 */
   #isSubscribe = false
@@ -90,7 +90,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     if (this.config.acceptType.has(this.monitor.getDragType())) {
       // 验证config中是否也允许拖拽
       if (this.config.canDrop) {
-        if (this.config.canDrop(this.monitor['simple'])) {
+        if (this.config.canDrop(this.monitor['_s'])) {
           // if (this.config.canDrop(this.monitor)) {
           e.preventDefault()
           return true
@@ -157,9 +157,11 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       if (this.enterTimer) {
         clearTimeout(this.enterTimer)
       } else {
-        this.isEnter = false
-        this.#editClass('remove', 'dragEnter')
-        this.params.dragLeave && this.params.dragLeave(this.monitor)
+        if (this.isEnter){
+          this.isEnter = false
+          this.#editClass('remove', 'dragEnter')
+          this.params.dragLeave && this.params.dragLeave(this.monitor)
+        }
       }
     }
   }

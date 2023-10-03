@@ -111,7 +111,9 @@ interface IDropCoreConstructorParams<Data, Rubbish> {
     /** 动态添加的className */
     className?: {
       /** 允许放置的元素进入 */
-      dragEnter?: string
+      dragEnter?: string,
+      /** 允许放置的元素开始拖拽 */
+      canDrop?: string
     }
     /** 上下文 */
     context: IDnDProvider<Data, Rubbish>

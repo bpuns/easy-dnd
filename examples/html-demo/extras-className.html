@@ -1,0 +1,82 @@
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<style>
+  .a1, .a2 {
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgb(0, 0, 0);
+  }
+
+  .b {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed rgb(0, 0, 0)
+  }
+</style>
+
+<div class="a1">
+  盒子A1
+</div>
+
+<div class="a2">
+  盒子A2
+</div>
+
+<div class="b">
+  盒子B
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore
+  } from 'easy-dnd'
+
+  // 创建拖拽上下文
+  const context = createProvider()
+
+  // 创建一个拖拽类型
+  const DRAG_TYPE = 'a'
+
+  const drag1 = new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context,
+      data: () => 'a1'
+    }
+  })
+    .registerDom(document.querySelector('.a1'))
+    .subscribe()
+
+  const drag2 = new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context,
+      data: () => 'a2'
+    }
+  })
+    .registerDom(document.querySelector('.a2'))
+    .subscribe()
+
+  // 创建放置实例
+  const drop = new DropCore({
+    config: {
+      context,
+      acceptType: new Set([DRAG_TYPE]),
+    },
+    drop(monitor) {
+      console.log('拖拽元素放置，放置的data为', monitor.getDragData())
+    }
+  })
+    .registerDom(document.querySelector('.b'))
+    .subscribe()
+
+</script>

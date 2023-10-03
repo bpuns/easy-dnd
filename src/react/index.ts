@@ -38,7 +38,7 @@ class DndProvider extends PureComponent<IDndProviderProps> {
 
   constructor(props: IDndProviderProps) {
     super(props)
-    this.dndCtx = createProvider(props.type || DND_MODE.SWARAJ, props.delay || 0)
+    this.dndCtx = createProvider(props)
   }
 
   render() {

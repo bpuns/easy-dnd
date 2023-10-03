@@ -67,17 +67,23 @@ export function createDropMonitor<Data, Rubbish>(instance: DropCore<Data, Rubbis
       return !this.isOverLeft(domRect, true) && !this.isOverRight(domRect, true)
     },
     // @ts-ignore 给这个库自己用的
-    simple: canDropMonitor
+    _s: canDropMonitor
   }
+}
+
+interface ProviderConfig {
+  /** 拖拽类型，有 SCOPE 和 SWARAJ 两种可选 */
+  dndMode?: DND_MODE,
+  /** 拖拽延时时间，必须大于等于0 */
+  delay?:   number
 }
 
 /**
  * 创建拖拽作用域下的基本数据
- * @param dndMode   拖拽类型，有 SCOPE 和 SWARAJ 两种可选
- * @param delay     拖拽延时时间，必须大于等于0
+ * @param {ProviderConfig} param
  * @returns 
  */
-export function createProvider<Data, Rubbish>(dndMode: DND_MODE, delay: number = 0): IDnDProvider<Data, Rubbish> {
+export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay = 0 }: ProviderConfig = {}): IDnDProvider<Data, Rubbish> {
 
   if (delay < 0 || isNaN(delay)) delay = 0
 

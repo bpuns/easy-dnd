@@ -15,7 +15,6 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   config!: IDragCoreConstructorParams<Data, Rubbish>['config']
   /** monitor */
   monitor = createDragMonitor<Data, Rubbish>(this)
-  // 解决 doc/拖拽研究.md 2.5 问题
   /** 验证是否结束，如果调用了unSubscribe，其中isEnd还是false，需要手动调用一次#dragEnd */
   #isEnd = true
   /** 是否移入 */

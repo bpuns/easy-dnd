@@ -1,0 +1,69 @@
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<style>
+  .a {
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgb(0, 0, 0);
+  }
+
+  .b {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed rgb(0, 0, 0)
+  }
+</style>
+
+<div class="a">
+  盒子A
+</div>
+
+<div class="b">
+  盒子B
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore 
+  } from 'easy-dnd'
+
+  // 创建拖拽上下文
+  const context = createProvider()
+
+  // 创建一个拖拽类型
+  const DRAG_TYPE = 'a'
+
+  // 创建拖拽对象
+  const drag = new DragCore({
+    config: {
+      // 把拖拽类型放在这里
+      type: DRAG_TYPE,
+      // 关联上下文
+      context
+    }
+  })
+    .registerDom(document.querySelector('.a'))
+    .subscribe()
+
+  // 创建放置实例
+  const drop = new DropCore({
+    config: {
+      // 上下文下
+      context,
+      // 设置当前控件允许放置的类型，和 new Drag 中的 config.type 一一对应
+      acceptType: new Set([DRAG_TYPE]),
+    }
+  })
+    .registerDom(document.querySelector('.b'))
+    .subscribe()
+
+</script>

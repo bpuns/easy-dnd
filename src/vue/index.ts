@@ -31,7 +31,7 @@ export const DndProvider = defineComponent({
     }
   },
   setup(props, { slots }) {
-    provide(DND_CTX, createProvider(props.type, props.delay))
+    provide(DND_CTX, createProvider(props))
     return () => slots.default ? slots.default() : null
   }
 })

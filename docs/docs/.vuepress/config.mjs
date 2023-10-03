@@ -1,15 +1,17 @@
 import { defineUserConfig, defaultTheme } from 'vuepress'
-import { searchPlugin } from '@vuepress/plugin-search'
+// import { searchPlugin } from '@vuepress/plugin-search'
 
 export default defineUserConfig({
   lang: 'zh-CN',
   title: 'easy-dnd',
-  plugins: [
-    searchPlugin({
-      isSearchable: () => true
-    }),
-  ],
+  // plugins: [
+  //   searchPlugin({
+  //     isSearchable: () => true
+  //   }),
+  // ],
   theme: defaultTheme({
+    contributors: false,
+    lastUpdatedText: '最近更新时间',
     sidebarDepth: 4,
     // logo: '/images/logo.png',
     navbar: [
@@ -29,18 +31,29 @@ export default defineUserConfig({
           link: '/',
           collapsible: true
         },
-        {
-          text: '快速上手',
-          link: '/quickStart'
-        },
-        {
-          text: 'React下使用',
-          link: '/react'
-        },
-        {
-          text: 'Vue下使用',
-          link: '/vue'
-        },
+        'quickStart',
+        'extras',
+        'react',
+        'vue',
+        'ts'
+        // {
+        //   text: '简介',
+        //   link: '/',
+        //   collapsible: true
+        // },
+        // {
+        //   text: '快速上手',
+        //   link: '/home/quickStart',
+        //   collapsible: true
+        // },
+        // {
+        //   text: 'React下使用',
+        //   link: '/home/react'
+        // },
+        // {
+        //   text: 'Vue下使用',
+        //   link: '/home/vue'
+        // },
       ],
       '/api': [
         {

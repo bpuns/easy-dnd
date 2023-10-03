@@ -2,7 +2,7 @@
 
 `easy-dnd`是使用原生 [Drag and Drop](https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API/Drag_operations)  api 封装的一套可以应用与复杂场景下的拖拽库，它屏蔽和解决了很多实际运用场景下原生`api`的一些[问题](#h5元素拖拽api的问题)，此库专注于`web`端，完全不适用于任何触摸设备，好处的显而易见的，`easy-dnd`的核心代码体积大约只有 `9KB`左右，`gzip`下只有`3KB`左右
 
-`easy-dnd`不依赖与任何一个前端框架，由于不经过这些框架的运行时，因此可以直接用于浏览器环境中，并且性能得到了最佳保证，当然 `easy-dnd` 也提供了`vue` 和 `react` 的桥接方法，对于没有适配的前端框架，也可以极其容易的扩展
+`easy-dnd`不依赖与任何一个前端框架，由于不经过这些框架的运行时，因此可以直接用于浏览器环境中，性能得到了最佳保证，当然 `easy-dnd` 也提供了`vue` 和 `react` 的桥接方法，对于没有适配的前端框架，也可以极其容易的扩展
 
 
 
@@ -86,9 +86,9 @@ dom元素想要拖拽，只需要给dom绑定一个draggrable属性，就可以�
 
 可以给这些过程元素绑定三个事件
 
-- dragenter：拖拽元素进入该`dom`时触发
-- dragover： 拖拽元素在该`dom`范围内触发
-- dragleave：拖拽元素离开该`dom`时触发
+- **dragenter：** 拖拽元素进入该`dom`时触发
+- **dragover：**  拖拽元素在该`dom`范围内触发
+- **dragleave：** 拖拽元素离开该`dom`时触发
 
 ```html
 <div id="process">过程元素</div>
@@ -114,7 +114,7 @@ dom元素想要拖拽，只需要给dom绑定一个draggrable属性，就可以�
 
 当有可以拖拽的元素之后，总是需要有一个用于放置的地方，这个地方取一个形象的名称叫做**目标元素**。可以给目标元素绑定一个事件
 
-- drop：拖拽元素松开的位置在目标元素中
+- **drop：** 拖拽元素松开的位置在目标元素中
 
 ```html
 <div id="target">目标元素</div>
@@ -299,7 +299,7 @@ drop3.addEventListener('dragenter', (e) => {
 事件触发逻辑如下
 
 <center>
-    <img src="./images/image-20220528111113484-16551061607132.png" style="width:300px" />
+    <img src="./images/image-20221002140927928.png" style="width:300px" />
 </center>
 
 

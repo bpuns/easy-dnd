@@ -25,7 +25,7 @@ function watchPackage(_package) {
     output: {
       file:      outputFile,
       format:    'es',
-      sourcemap: false
+      sourcemap: true
     },
     plugins: [
       replaceImports((n) => {
