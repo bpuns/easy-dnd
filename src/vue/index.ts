@@ -19,7 +19,7 @@ import {
 } from 'easy-dnd'
 
 /** dnd上下文 */
-export const DndProvider = defineComponent({
+const DndProvider = defineComponent({
   name:  'DndProvider',
   props: {
     type: {
@@ -101,6 +101,9 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>) {
 export * from 'easy-dnd'
 
 export {
+  Drag,
+  Drop,
   useDrag,
-  useDrop
+  useDrop,
+  DndProvider
 }

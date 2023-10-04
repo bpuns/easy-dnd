@@ -103,7 +103,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     if (!this.#isSubscribe) return
     const { dragDom, context } = this
     if (dragDom) {
-      this.#toggleDraggable(this.#draggable = this.#isSubscribe = false)
+      this.#toggleDraggable(dragDom[BIND_DRAG] = this.#draggable = this.#isSubscribe = false)
       // 如果结束拖拽标识不为true，需要手动调用#dragEnd还原状态
       !this.#isEnd && this.#dragEnd(this.monitor.event)
       this.#removeHover()

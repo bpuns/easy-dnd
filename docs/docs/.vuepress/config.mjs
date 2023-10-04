@@ -16,8 +16,22 @@ export default defineUserConfig({
     // logo: '/images/logo.png',
     navbar: [
       {
+        text: '指南',
+        link: '/',
+        children: [
+          {
+            text: '简介',
+            link: '/',
+          },
+          '/quickStart',
+          '/extras',
+          '/react',
+          '/vue'
+        ]
+      },
+      {
         text: 'API',
-        link: '/api'
+        link: '/api/'
       },
       {
         text: 'GitHub',
@@ -33,41 +47,16 @@ export default defineUserConfig({
         },
         'quickStart',
         'extras',
-        'react',
         'vue',
-        'ts'
-        // {
-        //   text: '简介',
-        //   link: '/',
-        //   collapsible: true
-        // },
-        // {
-        //   text: '快速上手',
-        //   link: '/home/quickStart',
-        //   collapsible: true
-        // },
-        // {
-        //   text: 'React下使用',
-        //   link: '/home/react'
-        // },
-        // {
-        //   text: 'Vue下使用',
-        //   link: '/home/vue'
-        // },
+        'react'
       ],
       '/api': [
         {
-          text: 'html',
-          link: '/api',
+          text: '核心API',
+          link: '/api/'
         },
-        {
-          text: 'vue',
-          children: ['/reference/cli.md', '/reference/config.md'],
-        },
-        {
-          text: 'react',
-          children: ['/reference/cli.md', '/reference/config.md'],
-        }
+        '/api/vue/',
+        '/api/react/'
       ]
     }
   }),

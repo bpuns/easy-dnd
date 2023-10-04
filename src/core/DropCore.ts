@@ -28,6 +28,8 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   #isSubscribe = false
   /** 样式 */
   #className!: DropClassName
+  /** 当允许放置元素的方法调用的时候，把canDrop结果存起来，结束拖拽的时候用的到 */
+  #canDrop = false
 
   constructor(params: IDropCoreConstructorParams<Data, Rubbish>) {
     this.params = params
@@ -176,8 +178,8 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   /** 元素开始拖拽的时候触发的方法 */
   #dropItemDragStart = () => {
     const { dragStart } = this.params
-    const canDrop = this.canDrop()
-    if (!canDrop) return
+    this.#canDrop = this.canDrop()
+    if (!this.#canDrop) return
     dragStart?.(this.monitor)
     // 添加样式
     this.#editClass('add', 'canDrop')
@@ -187,8 +189,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   #dropItemDragEnd = () => {
     // 执行dragEnd回调
     const { dragEnd } = this.params
-    const canDrop = this.canDrop()
-    if (dragEnd && canDrop) {
+    if (dragEnd && this.#canDrop) {
       dragEnd?.(this.monitor)
     }
     // 移除样式

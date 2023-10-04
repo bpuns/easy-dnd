@@ -1,9 +1,11 @@
+import { join } from 'node:path'
 import { watch } from 'rollup'
 import typescript from 'rollup-plugin-typescript2'
 import replaceImports from 'rollup-plugin-replace-imports'
 import { terser } from 'rollup-plugin-terser'
 import {
   packages,
+  PROJECT_PATH,
   LIBRARY_NAME,
   TSCONFIG_PATH,
   COMPILER_TYPE,
@@ -25,7 +27,11 @@ function watchPackage(_package) {
     output: {
       file:      outputFile,
       format:    'es',
-      sourcemap: true
+      sourcemap: false
+    },
+    watch: {
+      // 只监听src文件夹
+      include: join(PROJECT_PATH, 'src/**')
     },
     plugins: [
       replaceImports((n) => {

@@ -402,65 +402,84 @@ new DropCore({
 
 ### DragMonitor
 
-`drag`的`monitor`类型定义如下
+`drag`相关事件回调的事件对象，具体的类型定义看这里 [ 核心API > createDragMonitor ](/api/#createdragmonitor) ，可以从中获取到当前拖拽上下文和dom事件的event 对象
 
 ```ts
-interface IDragCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbish>, 'getRubbish'> {
-    /** 拖拽事件对象 */
-    event: DragEvent;
-    /** 获取dnd上下文 */
-    getContext: () => IDnDProvider<Data, Rubbish>;
-}
+const drop = new DropCore({
+  ......
+  dragStart(monitor){
+  	  monitor.getContext()    // 使用createProvider创建的上下文
+      monitor.event			  // Event
+  }
+})
 ```
 
 ### DropMonitor
 
-`drop`的`monitor`类型定义如下
+`drop`相关事件回调的事件对象，具体的类型定义看这里 [ 核心API > createDropMonitor ](/api/#createdropmonitor) ，接下来来介绍下这个事件对象上几个很好用的方法
+
+比如想要知道当前拖拽元素是否在放置元素的上 50% ，可以这么写
+
+```js
+const drop = new DropCore({
+  ......
+  // 进入时触发的函数
+  dragOver(monitor) {
+    // 拖动到前50%
+    if (monitor.isOverTop()) {
+      drop.dropDom.className = 'example3-enter-top'
+    }
+    // 拖动到后50%
+    else {
+      drop.dropDom.className = 'example3-enter-bottom'
+    }
+  },
+  // 离开
+  dragLeave() {
+    // 拖动的控件离开此控件，还原样式
+    drop.dropDom.className = ''
+  },
+  // 松开
+  drop(monitor) {
+    const isTop = monitor.isOverTop()
+    console.log(`放置到${isTop ? '上' : '下'}面`)
+    // 去除样式
+    this.dragLeave && this.dragLeave(monitor)
+  }
+})
+```
+
+如果你的放置元素分为了上中下三份，可以这么判断
+
+```jsx
+// 获取盒子模型尺寸对象
+const rect = monitor.getDomRect()
+
+if (monitor.isOverTop(rect, true)) {
+  console.log('拖到了 0 - 1/3 位置')
+}
+else if (monitor.isOverRowCenter(rect)) {
+  console.log('拖到了 1/3 - 2/3 位置')
+}
+else {
+  console.log('拖到了 2/3 - 1 位置')
+}
+```
+
+同理，除了 y 轴位置判断，dropMonitor 也提供了 x 轴位置判断方法
 
 ```ts
-interface IDropCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbish>, 'getRubbish'> {
-    /** 获取dropDom的尺寸 */
-    getDomRect: () => DOMRect;
-    /** 拖拽事件对象 */
-    event: DragEvent;
-    /** 获取整个dnd的上下文 */
-    getContext: () => IDnDProvider<Data, Rubbish>;
-    /** 获取正在拖拽的元素的type */
-    getDragType: () => IDnDProvider<Data, Rubbish>['dragType'];
-    /** 获取正在拖拽的元素的dom */
-    getDragDom: () => IDnDProvider<Data, Rubbish>['dragDom'];
-    /** 获取拖拽元素的data */
-    getDragData: () => IDnDProvider<Data, Rubbish>['dragData'];
-    /** 获取dropInstance */
-    getDropInstance: () => IDnDProvider<Data, Rubbish>['dropInstance'];
-    /**
-     * 判断dragDom是否在dropDom的上侧区域
-     * @param domRect        DOMRect
-     * @param middleExists   false|鼠标在上50%的位置就返回true(默认值)  true|鼠标在上33.333%的位置就返回true
-     */
-    isOverTop: (domRect?: DOMRect, middleExists?: boolean) => boolean;
-    /**
-     * 判断dragDom是否在dropDom的下侧区域
-     * @param domRect        DOMRect
-     * @param middleExists   false|鼠标在下50%的位置就返回true(默认值)  true|鼠标在下33.333%的位置就返回true
-     */
-    isOverBottom: (domRect?: DOMRect, middleExists?: boolean) => boolean;
-    /**
-     * 判断dragDom是否在dropDom的左侧区域
-     * @param domRect        DOMRect
-     * @param middleExists   false|鼠标在左50%的位置就返回true(默认值)  true|鼠标在左33.333%的位置就返回true
-     */
-    isOverLeft: (domRect?: DOMRect, middleExists?: boolean) => boolean;
-    /**
-     * 判断dragDom是否在dropDom的右侧区域
-     * @param domRect        DOMRect
-     * @param middleExists   false|鼠标在右50%的位置就返回true(默认值)  true|鼠标在右33.333%的位置就返回true
-     */
-    isOverRight: (domRect?: DOMRect, middleExists?: boolean) => boolean;
-    /** 判断正在拖拽的元素是否在横向的 > 33.333% & < 66.666% 位置 */
-    isOverRowCenter: (domRect?: DOMRect) => boolean;
-    /** 判断正在拖拽的元素是否在纵向的 > 33.333% & < 66.666% 位置 */
-    isOverColumnCenter: (domRect?: DOMRect) => boolean;
+// 获取盒子模型尺寸对象
+const rect = monitor.getDomRect()
+
+if (monitor.isOverLeft(rect, true)) {
+  console.log('拖到了 0 - 1/3 位置')
+}
+else if (monitor.isOverColumnCenter(rect)) {
+  console.log('拖到了 1/3 - 2/3 位置')
+}
+else {
+  console.log('拖到了 2/3 - 1 位置')
 }
 ```
 

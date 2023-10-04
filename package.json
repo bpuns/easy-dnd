@@ -3,8 +3,8 @@
   "version": "1.0.0-beta2023100101",
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
-    "devReactDemo": "npm --workspace react-demo start",
-    "devVueDemo": "npm --workspace vue-demo start",
+    "start:reactDemo": "npm --workspace react-demo start",
+    "start:vueDemo": "npm --workspace vue-demo start",
     "build": "rollup --config rollup.config.js",
     "publish": "node ./publish.js"
   },

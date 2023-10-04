@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 /** 项目路径 */
-const PROJECT_PATH = join(dirname(fileURLToPath(import.meta.url)), '../../')
+export const PROJECT_PATH = join(dirname(fileURLToPath(import.meta.url)), '../../')
 
 /** 打包路径 */
 const BUILD_PATH = join(PROJECT_PATH, 'build')

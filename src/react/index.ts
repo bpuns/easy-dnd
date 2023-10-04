@@ -166,6 +166,8 @@ function useDrop<Data = {}, Rubbish = {}>(
 export * from 'easy-dnd'
 
 export {
+  Drag,
+  Drop,
   useDrag,
   useDrop,
   DndProvider

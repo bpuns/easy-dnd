@@ -22,9 +22,9 @@ interface IDnDProvider<Data, Rubbish> {
   dragData: Data
   /** 某个元素执行了drop，那么这个drop的实例就会存储在这里，在整个拖拽生命周期结束后，此变量也会被删除 */
   dropInstance: DropCore | null
-  /** 保存当前dragEnter的dom是哪一个，解决 doc/拖拽研究.md 2.4 问题 */
+  /** 保存当前dragEnter的dom是哪一个 */
   enterDom: HTMLElement
-  /** dragEnter延时多长事件触发, 解决 doc/拖拽研究.md 2.4 问题 */
+  /** dragEnter延时多长事件触发 */
   delay: number
   /** 用来存储被drag包裹的元素的开始事件，当有元素开始拖动的时候，会触发此方法 */
   dragItemDragStarts: Set<() => void>
@@ -93,7 +93,7 @@ interface IDropCoreConstructorParams<Data, Rubbish> {
     /**
      * 验证是否允许放置在这里
      * ！！！注意！！！
-     * 请不要在canDrop中去做一些判断位置的操作（解决 doc/拖拽研究.md 2.10 问题）
+     * 请不要在canDrop中去做一些判断位置的操作
      * 在这个函数在整个拖拽生命周期内返回的值必须是一样的
      */
     canDrop?: (
