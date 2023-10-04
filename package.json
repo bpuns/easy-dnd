@@ -1,12 +1,13 @@
 {
   "name": "easy-dnd",
-  "version": "1.0.0-beta2023100401",
+  "version": "1.0.0-beta2023100402",
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "doc": "npm --workspace doc start",
     "buildDoc": "npm --workspace doc run build",
     "build": "node ./scripts/build.mjs",
     "start:reactDemo": "npm --workspace react-demo start",
+    "start:react18Demo": "npm --workspace react18-demo start",
     "start:vueDemo": "npm --workspace vue-demo start"
   },
   "workspaces": [

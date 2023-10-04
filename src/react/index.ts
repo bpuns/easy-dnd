@@ -1,4 +1,5 @@
 import {
+  useRef,
   useMemo,
   useEffect,
   createElement,
@@ -93,6 +94,7 @@ function useDrag<Data = {}, Rubbish = {}>(
 ): Drag<Data, Rubbish> {
 
   const context = useContext(DndContext)
+  const dragDom = useRef<HTMLElement>(null!)
 
   const dragInstance = useMemo(() => {
     // 手动注入context
@@ -116,6 +118,10 @@ function useDrag<Data = {}, Rubbish = {}>(
   }, deep)
 
   useLayoutEffect(() => {
+    if (dragInstance.dragDom === null) {
+      dragInstance.dragDom = dragDom.current
+    }
+    dragDom.current = dragInstance.dragDom
     dragInstance.subscribe()
     return () => dragInstance.unSubscribe()
   }, [])
@@ -132,6 +138,7 @@ function useDrop<Data = {}, Rubbish = {}>(
 ): Drop<Data, Rubbish> {
 
   const context = useContext(DndContext)
+  const dropDom = useRef<HTMLElement>(null!)
 
   const dropInstance = useMemo<Drop<Data, Rubbish>>(() => {
     // 手动注入context
@@ -155,6 +162,10 @@ function useDrop<Data = {}, Rubbish = {}>(
   }, deep)
 
   useLayoutEffect(() => {
+    if (dropInstance.dropDom === null) {
+      dropInstance.dropDom = dropDom.current
+    }
+    dropDom.current = dropInstance.dropDom
     dropInstance.subscribe()
     return () => dropInstance.unSubscribe()
   }, [])
