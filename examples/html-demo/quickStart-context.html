@@ -1,0 +1,101 @@
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<style>
+  .a1,
+  .a2 {
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgb(0, 0, 0);
+  }
+
+  .b1,
+  .b2 {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed rgb(0, 0, 0)
+  }
+</style>
+
+<div>
+  <div class="a1">
+    盒子A1
+  </div>
+  <div class="a2">
+    盒子A2
+  </div>
+</div>
+
+<div>
+  <div class="b1">
+    盒子B1
+  </div>
+  <div class="b2">
+    盒子B2
+  </div>
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore
+  } from 'easy-dnd'
+
+  const context1 = createProvider()
+  const context2 = createProvider()
+
+  // 创建一个拖拽类型
+  const DRAG_TYPE = 'a'
+
+  const drag1 = new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context: context1,
+      data: () => 'a1'
+    }
+  })
+    .registerDom(document.querySelector('.a1'))
+    .subscribe()
+
+  const drag2 = new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context: context2,
+      data: () => 'a2'
+    }
+  })
+    .registerDom(document.querySelector('.a2'))
+    .subscribe()
+
+  const drop1 = new DropCore({
+    config: {
+      context: context2,
+      acceptType: new Set([DRAG_TYPE]),
+    },
+    drop(monitor) {
+      console.log('拖拽元素放置，放置的data为', monitor.getDragData())
+    }
+  })
+    .registerDom(document.querySelector('.b1'))
+    .subscribe()
+
+  const drop2 = new DropCore({
+    config: {
+      context: context1,
+      acceptType: new Set([DRAG_TYPE]),
+    },
+    drop(monitor) {
+      console.log('拖拽元素放置，放置的data为', monitor.getDragData())
+    }
+  })
+    .registerDom(document.querySelector('.b2'))
+    .subscribe()
+
+</script>
