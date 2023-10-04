@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 export const PROJECT_PATH = join(dirname(fileURLToPath(import.meta.url)), '../../')
 
 /** 打包路径 */
-const BUILD_PATH = join(PROJECT_PATH, 'build')
+export const BUILD_PATH = join(PROJECT_PATH, 'build')
 
 /** tsconfig路径 */
 export const TSCONFIG_PATH = join(PROJECT_PATH, 'tsconfig.json')
