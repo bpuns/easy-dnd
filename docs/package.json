@@ -1,8 +1,7 @@
 {
-  "name": "vuepress-starter",
+  "name": "doc",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "start": "vuepress dev docs",
     "build": "vuepress build docs"

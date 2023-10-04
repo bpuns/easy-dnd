@@ -1,20 +1,32 @@
 {
   "name": "easy-dnd",
-  "version": "1.0.0-beta2023100101",
+  "version": "1.0.0-beta2023100401",
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
-    "start:reactDemo": "npm --workspace react-demo start",
-    "start:vueDemo": "npm --workspace vue-demo start",
+    "publish": "node ./publish.js",
+    "doc": "npm --workspace doc start",
+    "buildDoc": "npm --workspace doc run build",
     "build": "rollup --config rollup.config.js",
-    "publish": "node ./publish.js"
+    "start:reactDemo": "npm --workspace react-demo start",
+    "start:vueDemo": "npm --workspace vue-demo start"
   },
   "workspaces": [
-    "examples/*"
+    "examples/*",
+    "./docs"
+  ],
+  "keywords": [
+    "vue",
+    "react",
+    "dnd",
+    "drag",
+    "drop"
   ],
   "engines": {
     "node": ">=16.5.0",
     "npm": ">=6.0.0"
   },
+  "author": "bpuns",
+  "repository": "https://github.com/bpuns/easy-dnd.git",
   "devDependencies": {
     "@types/react": "17.0.2",
     "eslint": "7.20.0",

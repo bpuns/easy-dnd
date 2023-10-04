@@ -2,6 +2,7 @@ import { defineUserConfig, defaultTheme } from 'vuepress'
 // import { searchPlugin } from '@vuepress/plugin-search'
 
 export default defineUserConfig({
+  base: '/easy-dnd-docs/',
   lang: 'zh-CN',
   title: 'easy-dnd',
   // plugins: [

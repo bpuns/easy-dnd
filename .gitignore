@@ -24,3 +24,7 @@ yarn-error.log*
 
 .gradle
 .settings
+
+.temp
+.cache
+/docs/docs/.vuepress/dist
