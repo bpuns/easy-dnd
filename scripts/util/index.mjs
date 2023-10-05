@@ -7,6 +7,8 @@ export const PROJECT_PATH = join(dirname(fileURLToPath(import.meta.url)), '../..
 
 /** 打包路径 */
 export const BUILD_PATH = join(PROJECT_PATH, 'build')
+/** 发布包路径 */
+export const RELEASES_PATH = join(PROJECT_PATH, 'releases')
 
 /** tsconfig路径 */
 export const TSCONFIG_PATH = join(PROJECT_PATH, 'tsconfig.json')
@@ -37,28 +39,31 @@ export const COMPILER_TYPE = {
  */
 export const packages = [
   {
-    type:       COMPILER_TYPE.CORE,
-    name:       'dnd-core',
-    entry:      join(PROJECT_PATH, 'src/index.ts'),
-    outputFile: join(BUILD_PATH, 'index.js'),
-    dTsPath:    null,
-    external:   []
+    type:         COMPILER_TYPE.CORE,
+    name:         'dnd-core',
+    releasesName: 'dnd',
+    entry:        join(PROJECT_PATH, 'src/index.ts'),
+    outputFolder: BUILD_PATH,
+    dTsPath:      null,
+    external:     []
   },
   {
-    type:       COMPILER_TYPE.VUE,
-    name:       'vue',
-    entry:      join(PROJECT_PATH, 'src/vue/index.ts'),
-    outputFile: join(BUILD_PATH, 'vue/index.js'),
-    dTsPath:    join(BUILD_PATH, 'vue/index.d.ts'),
-    external:   [ 'vue', LIBRARY_NAME ]
+    type:         COMPILER_TYPE.VUE,
+    name:         'vue',
+    releasesName: 'dnd-vue',
+    entry:        join(PROJECT_PATH, 'src/vue/index.ts'),
+    outputFolder: join(BUILD_PATH, 'vue'),
+    dTsPath:      join(BUILD_PATH, 'vue/index.d.ts'),
+    external:     [ 'vue' ]
   },
   {
-    type:       COMPILER_TYPE.REACT,
-    name:       'react',
-    entry:      join(PROJECT_PATH, 'src/react/index.ts'),
-    outputFile: join(BUILD_PATH, 'react/index.js'),
-    dTsPath:    join(BUILD_PATH, 'react/index.d.ts'),
-    external:   [ 'react', 'react/jsx-runtime', LIBRARY_NAME ]
+    type:         COMPILER_TYPE.REACT,
+    name:         'react',
+    releasesName: 'dnd-react',
+    entry:        join(PROJECT_PATH, 'src/react/index.ts'),
+    outputFolder: join(BUILD_PATH, 'react'),
+    dTsPath:      join(BUILD_PATH, 'react/index.d.ts'),
+    external:     [ 'react', 'react/jsx-runtime' ]
   }
 ]
 

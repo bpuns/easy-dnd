@@ -19,13 +19,13 @@ function watchPackage(_package) {
     name,
     entry,
     external,
-    outputFile
+    outputFolder
   } = _package
 
   watch({
     input:  entry,
     output: {
-      file:      outputFile,
+      file:      join(outputFolder, 'index.js'),
       format:    'es',
       sourcemap: false
     },
@@ -54,7 +54,7 @@ function watchPackage(_package) {
         }
       })
     ],
-    external
+    external: [ ...external, LIBRARY_NAME ]
   })
     .on('event', event => {
       // 监听构建事件

@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import process from 'node:process'
 import { rollup } from 'rollup'
 import fs from 'fs-extra'
 import typescript from 'rollup-plugin-typescript2'
@@ -7,6 +8,7 @@ import { terser } from 'rollup-plugin-terser'
 import {
   packages,
   BUILD_PATH,
+  RELEASES_PATH,
   PROJECT_PATH,
   LIBRARY_NAME,
   TSCONFIG_PATH,
@@ -14,14 +16,20 @@ import {
   unsetEasyDndImport
 } from './util/index.mjs'
 
-async function buildPackage(_package) {
+const BUILD_TYPE = {
+  ES:       'es',
+  RELEASES: 'releases'
+}
+
+async function buildPackage(_package, isBuildEs) {
 
   const {
     type,
     name,
     entry,
     external,
-    outputFile
+    releasesName,
+    outputFolder
   } = _package
 
   console.log(`${name}：开始构建`)
@@ -45,25 +53,34 @@ async function buildPackage(_package) {
         tsconfig:         TSCONFIG_PATH,
         tsconfigOverride: {
           compilerOptions: {
-            declaration: type === COMPILER_TYPE.CORE
+            declaration: isBuildEs ? type === COMPILER_TYPE.CORE : false
           }
         }
       })
-    ],
-    external
+    ].filter(Boolean),
+    external: isBuildEs ? [ ...external, LIBRARY_NAME ] : external
   })
 
-  const outputOptions = {
-    file:      outputFile,
-    format:    'es',
-    sourcemap: false
+  const outputOptions = [
+    {
+      file:      isBuildEs ? join(outputFolder, 'index.js') : join(RELEASES_PATH, `${releasesName}.es.js`),
+      format:    'es',
+      sourcemap: false
+    },
+    isBuildEs ? null : {
+      file:      join(RELEASES_PATH, `${releasesName}.umd.js`),
+      format:    'umd',
+      name:      'dnd',
+      globals:   external,
+      sourcemap: false
+    }
+  ].filter(Boolean)
+
+  // 遍历输出选项，生成代码并写入文件
+  for (const option of outputOptions) {
+    await bundle.generate(option)
+    await bundle.write(option)
   }
-
-  // 生成代码
-  await bundle.generate(outputOptions)
-
-  // 写入文件
-  await bundle.write(outputOptions)
 
   await unsetEasyDndImport(_package)
 
@@ -72,9 +89,13 @@ async function buildPackage(_package) {
 }
 
 ; (async function () {
-  console.log('清理打包路径')
-  await fs.emptyDir(BUILD_PATH)
-  await Promise.allSettled(packages.map(buildPackage))
+  const isBuildEs = (process.argv[2] || BUILD_TYPE.ES) === BUILD_TYPE.ES
+  await fs.emptyDir(isBuildEs ? BUILD_PATH : RELEASES_PATH)
+  await Promise.allSettled(packages.map((t) => buildPackage(t, isBuildEs)))
+  isBuildEs && copyNpmConfig()
+})()
+
+function copyNpmConfig() {
   // 复制package.json
   const desJson = JSON.parse(fs.readFileSync(join(PROJECT_PATH, 'package.json'), 'utf-8'))
   const newPackageJson = {
@@ -92,4 +113,4 @@ async function buildPackage(_package) {
     join(BUILD_PATH, 'README.md')
   )
   console.log('复制README.md完成')
-})()
+}
