@@ -25,8 +25,8 @@ const drop = useDrop({
   drop(monitor) {
     console.log('A放置在B上', '存放的数据:' + monitor.getDragData())
   },
-  dragOver() {
-    console.log('A在B中移动')
+  dragOver(monitor) {
+    console.log('A在B中移动', monitor.isOverTop())
   },
   dragLeave() {
     console.log('A离开了B的范围')

@@ -162,9 +162,6 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   }
 
   #drag = (e: DragEvent) => {
-    const { dragCoord } = this.context
-    dragCoord.x = e.clientX
-    dragCoord.y = e.clientY
     if (this.params.drag) {
       this.monitor.event = e
       this.params.drag(this.monitor)

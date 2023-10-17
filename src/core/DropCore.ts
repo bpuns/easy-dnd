@@ -140,9 +140,13 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (this.isEnter) {
+      const { dragCoord } = this.context
       const prePosition = this.prePosition
       // 避免重复执行dragOver
-      if (prePosition.x !== e.clientX || prePosition.y !== e.clientY) {
+      if (
+        prePosition.x !== (dragCoord.x = e.clientX) ||
+        prePosition.y !== (dragCoord.y = e.clientY)
+      ) {
         prePosition.x = e.clientX
         prePosition.y = e.clientY
         this.params.dragOver?.(this.monitor)

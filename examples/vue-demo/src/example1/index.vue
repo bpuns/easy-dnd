@@ -10,7 +10,6 @@
 <script setup lang="ts">
 import { DndProvider, DND_MODE } from 'easy-dnd/vue'
 import * as dnd from 'easy-dnd/vue'
-console.log(dnd)
 import A from './A.vue'
 import B from './B.vue'
 </script>
