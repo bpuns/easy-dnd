@@ -1,6 +1,6 @@
 {
   "name": "easy-dnd",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0",
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "doc": "npm --workspace doc start",
