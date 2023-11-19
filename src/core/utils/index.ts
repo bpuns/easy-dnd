@@ -81,35 +81,79 @@ interface ProviderConfig {
   delay?: number
 }
 
+type DragCoord = IDnDProvider<any, any>['dragCoord']
+const dragCoords: DragCoord[] = []
+let unbindGetContextCoords: () => void
+
+/**
+ * Firefox浏览器无法获取拖拽中的位置，因此需要在html上绑定drag，获取拖拽位置
+ * @param dragCoord 
+ * @returns 
+ */
+function bindGetContextCoords(dragCoord: DragCoord) {
+  if (!unbindGetContextCoords) {
+    const dragOver = (e: DragEvent) => {
+      dragCoord.x = e.clientX
+      dragCoord.y = e.clientY
+    }
+    const html = document.documentElement
+    html.addEventListener('dragover', dragOver, true)
+    unbindGetContextCoords = () => html.removeEventListener('dragover', dragOver, true)
+  }
+  const pushSize = dragCoords.push(dragCoord)
+  return () => {
+    dragCoords.splice(pushSize - 1, 1)
+    if (!dragCoords.length) {
+      unbindGetContextCoords()
+      unbindGetContextCoords = undefined
+    }
+  }
+}
+
 /**
  * 创建拖拽作用域下的基本数据
  * @param {ProviderConfig} param
  * @returns 
  */
-export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay = 0 }: ProviderConfig = {}): IDnDProvider<Data, Rubbish> {
+export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay = 0 }: ProviderConfig = {}) {
 
   if (delay < 0 || isNaN(delay)) delay = 0
 
   const rubbish: any = {}
 
-  return {
+  const dragCoord = Object.seal({
+    x: 0,
+    y: 0
+  })
+
+  const unbind = bindGetContextCoords(dragCoord)
+
+  const ctx: IDnDProvider<Data, Rubbish> = {
     dndMode,
     delay,
-    dropInstance: null,
-    dragCoord:    {
-      x: 0,
-      y: 0
-    },
+    dragCoord,
+    dropInstance:       null,
     dragType:           null!,
     dragDom:            null!,
     dragData:           null!,
     enterDom:           null!,
-    dragItemDragStarts: new Set(),
-    dragItemDragEnds:   new Set(),
-    dropItemDragStarts: new Set(),
-    dropItemDragEnds:   new Set(),
-    getRubbish:         () => rubbish
+    drops:              new Set,
+    drags:              new Set,
+    dragItemDragStarts: new Set,
+    dragItemDragEnds:   new Set,
+    dropItemDragStarts: new Set,
+    dropItemDragEnds:   new Set,
+    destroy() {
+      unbind()
+      ctx.drops.forEach(t => t.unSubscribe())
+      ctx.drags.forEach(t => t.unSubscribe())
+      ctx.drops = ctx.drags = null!
+    },
+    getRubbish: () => rubbish
   }
+
+  return ctx
+
 }
 
 export function createDragMonitor<Data, Rubbish>(instance: DragCore<Data, Rubbish>): IDragCoreMonitor<Data, Rubbish> {

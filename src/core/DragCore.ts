@@ -1,5 +1,6 @@
 import type { IDnDProvider, IDragCoreConstructorParams, DragDropBase } from './@types'
 import { BIND_DRAG, isElement, createDragMonitor } from './utils'
+import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/tips'
 
 type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
 
@@ -21,6 +22,8 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   #isHover = false
   /** 标识是否允许拖拽 */
   #draggable = true
+  /** 记录上一次drag的clientX与clientY的位置，避免重复执行drag */
+  prePosition = { x: null!, y: null! }
   /** 判断是否注册过 */
   #isSubscribe = false
   /** 样式 */
@@ -85,9 +88,11 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   subscribe = () => {
     if (this.#isSubscribe) return
     const { dragDom, context } = this
+    if (!context.drags) throw new Error(DESTROY_TIP)
     if (!isElement(dragDom)) {
-      throw new Error('class Drag调用subscribe方法前必须调用registerDom方法')
+      throw new Error(SUBSCRIBE_TIP('Drag'))
     }
+    context.drags.add(this)
     this.#toggleDraggable(this.#draggable = this.#isSubscribe = true)
     context.dragItemDragStarts.add(this.#dragItemDragStart)
     context.dragItemDragEnds.add(this.#dragItemDragEnd)
@@ -113,6 +118,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
       dragDom.removeEventListener('dragend', this.#dragEnd)
       this.dragDom = null!
     }
+    context.drags.delete(this)
     context.dragItemDragEnds.delete(this.#dragItemDragEnd)
     context.dragItemDragStarts.delete(this.#dragItemDragStart)
   }
@@ -164,7 +170,17 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   #drag = (e: DragEvent) => {
     if (this.params.drag) {
       this.monitor.event = e
-      this.params.drag(this.monitor)
+      const { dragCoord } = this.context
+      const prePosition = this.prePosition
+      // 避免重复执行dragOver
+      if (
+        prePosition.x !== dragCoord.x ||
+        prePosition.y !== dragCoord.y
+      ) {
+        prePosition.x = dragCoord.x
+        prePosition.y = dragCoord.y
+        this.params.drag?.(this.monitor)
+      }
     }
   }
 

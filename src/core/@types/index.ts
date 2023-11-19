@@ -1,4 +1,5 @@
 import type { DropCore } from '../DropCore'
+import type { DragCore } from '../DragCore'
 
 /** 拖拽模式 */
 enum DND_MODE {
@@ -36,6 +37,12 @@ interface IDnDProvider<Data, Rubbish> {
   dropItemDragEnds: Set<() => void>
   /** 获取 存放拖拽的时候具体业务逻辑中的一些数据 */
   getRubbish: () => Rubbish
+  /** 用于销毁上下文下的所有drag/drop对象 */
+  destroy: () => void
+  /** 存储当前上下文下所有drop实例 */
+  drops: Set<DropCore>
+  /** 存储当前上下文下所有drag实例 */
+  drags: Set<DragCore>
 }
 
 /** Drag 构造函数参数 */
@@ -166,6 +173,8 @@ interface IDropCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbis
 }
 
 abstract class DragDropBase {
+  /** 记录上一次dragover/drag的clientX与clientY的位置，避免重复执行dragOver */
+  prePosition: { x: number, y: number }
   /** 注册dom */
   abstract registerDom: (dom: HTMLElement) => any
   /** 绑定事件 */

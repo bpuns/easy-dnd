@@ -1,6 +1,7 @@
 import type { IDnDProvider, DragDropBase, IDropCoreConstructorParams } from './@types'
 import { DND_MODE } from './@types'
 import { BIND_DRAG, isElement, createDropMonitor } from './utils'
+import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/tips'
 
 type DropClassName = IDropCoreConstructorParams<any, any>['config']['className']
 
@@ -21,7 +22,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   /** 进入定时器 */
   enterTimer!: number
   /** 记录上一次dragover的clientX与clientY的位置，避免重复执行dragOver */
-  prePosition = { x: 0, y: 0 }
+  prePosition = { x: null!, y: null! }
   /** 解决子节点重复事件冒泡问题 */
   #stack = 0
   /** 判断是否注册过 */
@@ -45,13 +46,15 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
 
   subscribe = () => {
     if (this.#isSubscribe) return
-    const { dropDom } = this
+    const { dropDom, context } = this
+    if (!context.drops) throw new Error(DESTROY_TIP)
     if (!isElement(dropDom)) {
-      throw new Error('class Drop调用subscribe方法前必须调用registerDom方法')
+      throw new Error(SUBSCRIBE_TIP('Drop'))
     }
+    context.drops.add(this)
     this.#isSubscribe = true
-    this.context.dropItemDragStarts.add(this.#dropItemDragStart)
-    this.context.dropItemDragEnds.add(this.#dropItemDragEnd)
+    context.dropItemDragStarts.add(this.#dropItemDragStart)
+    context.dropItemDragEnds.add(this.#dropItemDragEnd)
     dropDom.addEventListener('dragenter', this.#dragenter)
     dropDom.addEventListener('dragover', this.#dragover)
     dropDom.addEventListener('dragleave', this.#dragleave)
@@ -72,6 +75,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       dropDom.removeEventListener('dragleave', this.#dragleave)
       dropDom.removeEventListener('drop', this.#drop)
       this.dropDom = null!
+      this.context.drops.delete(this)
     }
   }
 
@@ -144,8 +148,8 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
       const prePosition = this.prePosition
       // 避免重复执行dragOver
       if (
-        prePosition.x !== (dragCoord.x = e.clientX) ||
-        prePosition.y !== (dragCoord.y = e.clientY)
+        prePosition.x !== dragCoord.x ||
+        prePosition.y !== dragCoord.y
       ) {
         prePosition.x = e.clientX
         prePosition.y = e.clientY
