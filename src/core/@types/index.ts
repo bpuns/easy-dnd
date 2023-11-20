@@ -29,22 +29,22 @@ interface IDnDProvider<Data, Rubbish> {
   enterDom: HTMLElement
   /** dragEnter延时多长事件触发 */
   delay: number
-  /** 用来存储被drag包裹的元素的开始事件，当有元素开始拖动的时候，会触发此方法 */
-  dragItemDragStarts: Set<() => void>
-  /** 用来存储被drop包裹的元素的结束事件，当有元素结束拖动的时候，会触发此方法 */
-  dragItemDragEnds: Set<() => void>
-  /** 用来存储被drop包裹的元素的开始事件，当有元素开始拖动的时候，会触发此方法 */
-  dropItemDragStarts: Set<() => void>
-  /** 用来存储被drop包裹的元素的结束事件，当有元素结束拖动的时候，会触发此方法 */
-  dropItemDragEnds: Set<() => void>
   /** 获取 存放拖拽的时候具体业务逻辑中的一些数据 */
   getRubbish: () => Rubbish
   /** 用于销毁上下文下的所有drag/drop对象 */
   destroy: () => void
+  /** 用来存储被drag包裹的元素的开始事件，当有元素开始拖动的时候，会触发此方法 */
+  _dragItemDragStarts: Set<() => void>
+  /** 用来存储被drop包裹的元素的结束事件，当有元素结束拖动的时候，会触发此方法 */
+  _dragItemDragEnds: Set<() => void>
+  /** 用来存储被drop包裹的元素的开始事件，当有元素开始拖动的时候，会触发此方法 */
+  _dropItemDragStarts: Set<() => void>
+  /** 用来存储被drop包裹的元素的结束事件，当有元素结束拖动的时候，会触发此方法 */
+  _dropItemDragEnds: Set<() => void>
   /** 存储当前上下文下所有drop实例 */
-  drops: Set<DropCore>
+  _drops: Set<DropCore>
   /** 存储当前上下文下所有drag实例 */
-  drags: Set<DragCore>
+  _drags: Set<DragCore>
 }
 
 /** Drag 构造函数参数 */
@@ -185,7 +185,7 @@ abstract class DragDropBase {
   abstract unSubscribe: () => void
 }
 
-/** 把context取出来，hooks中不需要加入context */
+/** 把context取出、来，hooks中不需要加入context */
 type IDragHooksParams<Data, Rubbish> = Omit<IDragCoreConstructorParams<Data, Rubbish>, 'config'> & {
   config: Omit<IDragCoreConstructorParams<Data, Rubbish>['config'], 'context'>
 }
@@ -194,17 +194,28 @@ type IDropHooksParams<Data, Rubbish> = Omit<IDropCoreConstructorParams<Data, Rub
   config: Omit<IDropCoreConstructorParams<Data, Rubbish>['config'], 'context'>
 }
 
+/** 监听拖拽参数 */
+type IListenDragParams<Data, Rubbish> = {
+  /** 拖拽上下文 */
+  context: IDnDProvider<Data, Rubbish>
+  /** 此次拖拽是否需要监听 */
+  needListen?: (ctx: IDnDProvider<Data, Rubbish>) => void
+  /** 拖拽中触发 */
+  dragging?: (ctx: IDnDProvider<Data, Rubbish>) => void
+}
+
 export {
   DND_MODE
 }
 
 export type {
   IDnDProvider,
-  IDragCoreMonitor,
-  IDragCoreConstructorParams,
-  IDropCoreMonitor,
-  IDropCoreConstructorParams,
   DragDropBase,
+  IDragCoreMonitor,
+  IDropCoreMonitor,
   IDragHooksParams,
-  IDropHooksParams
+  IDropHooksParams,
+  IListenDragParams,
+  IDragCoreConstructorParams,
+  IDropCoreConstructorParams
 }

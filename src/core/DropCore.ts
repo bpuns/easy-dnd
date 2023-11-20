@@ -46,15 +46,15 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
 
   subscribe = () => {
     if (this._isSubscribe) return
-    const { dropDom, context } = this
-    if (!context.drops) throw new Error(DESTROY_TIP)
+    const { dropDom, context: ctx } = this
+    if (!ctx._drops) throw new Error(DESTROY_TIP)
     if (!isElement(dropDom)) {
       throw new Error(SUBSCRIBE_TIP('Drop'))
     }
-    context.drops.add(this)
+    ctx._drops.add(this)
     this._isSubscribe = true
-    context.dropItemDragStarts.add(this._dropItemDragStart)
-    context.dropItemDragEnds.add(this._dropItemDragEnd)
+    ctx._dropItemDragStarts.add(this._dropItemDragStart)
+    ctx._dropItemDragEnds.add(this._dropItemDragEnd)
     dropDom.addEventListener('dragenter', this._dragenter)
     dropDom.addEventListener('dragover', this._dragover)
     dropDom.addEventListener('dragleave', this._dragleave)
@@ -68,14 +68,14 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     if (dropDom) {
       this._isSubscribe = false
       // 移除绑定在context上的事件
-      this.context.dropItemDragEnds.delete(this._dropItemDragEnd)
-      this.context.dropItemDragStarts.delete(this._dropItemDragStart)
+      this.context._dropItemDragEnds.delete(this._dropItemDragEnd)
+      this.context._dropItemDragStarts.delete(this._dropItemDragStart)
       dropDom.removeEventListener('dragenter', this._dragenter)
       dropDom.removeEventListener('dragover', this._dragover)
       dropDom.removeEventListener('dragleave', this._dragleave)
       dropDom.removeEventListener('drop', this._drop)
       this.dropDom = null!
-      this.context.drops.delete(this)
+      this.context._drops.delete(this)
     }
   }
 
@@ -178,9 +178,12 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   _drop = (e: DragEvent) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
-    this.context.dropInstance = this
+    const ctx = this.context
+    ctx.dropInstance = this
     this._editClass('remove', 'dragEnter')
     this.params.drop?.(this.monitor)
+    // 清除放置实例
+    setTimeout(() => ctx.dropInstance = null)
   }
 
   /** 元素开始拖拽的时候触发的方法 */

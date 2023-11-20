@@ -1,7 +1,8 @@
 import {
+  type IDnDProvider,
   type IDragCoreMonitor,
   type IDropCoreMonitor,
-  type IDnDProvider,
+  type IListenDragParams,
   DND_MODE
 } from '../@types'
 import type { DragCore } from '../DragCore'
@@ -132,31 +133,38 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
     dndMode,
     delay,
     dragCoord,
-    dropInstance:       null,
-    dragInstance:       null,
-    dragType:           null!,
-    dragDom:            null!,
-    dragData:           null!,
-    enterDom:           null!,
-    drops:              new Set,
-    drags:              new Set,
-    dragItemDragStarts: new Set,
-    dragItemDragEnds:   new Set,
-    dropItemDragStarts: new Set,
-    dropItemDragEnds:   new Set,
+    dropInstance: null,
+    dragInstance: null,
+    dragType:     null!,
+    dragDom:      null!,
+    dragData:     null!,
+    enterDom:     null!,
     destroy() {
       unbind()
-      ctx.drops.forEach(t => t.unSubscribe())
-      ctx.drags.forEach(t => t.unSubscribe())
-      Object.keys(ctx).forEach(k=>{
+      ctx._drops.forEach(t => t.unSubscribe())
+      ctx._drags.forEach(t => t.unSubscribe())
+      Object.keys(ctx).forEach(k => {
         ctx[k] = null
       })
     },
-    getRubbish: () => rubbish
+    getRubbish:          () => rubbish,
+    _drops:              new Set,
+    _drags:              new Set,
+    _dragItemDragStarts: new Set,
+    _dragItemDragEnds:   new Set,
+    _dropItemDragStarts: new Set,
+    _dropItemDragEnds:   new Set
   }
 
   return ctx
 
+}
+
+export function onListenDrag<Data, Rubbish>({ context, dragging, needListen = () => true }: IListenDragParams<Data, Rubbish>) {
+  if (typeof dragging !== 'function') return
+  const unbind = () => {
+    // TODO:  
+  }
 }
 
 export function createDragMonitor<Data, Rubbish>(instance: DragCore<Data, Rubbish>): IDragCoreMonitor<Data, Rubbish> {

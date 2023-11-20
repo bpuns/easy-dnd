@@ -27,7 +27,7 @@ function watchPackage(_package) {
     output: {
       file:      join(outputFolder, 'index.js'),
       format:    'es',
-      sourcemap: true
+      sourcemap: false
     },
     watch: {
       // 只监听src文件夹

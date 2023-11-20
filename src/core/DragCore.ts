@@ -88,14 +88,14 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   subscribe = () => {
     if (this._isSubscribe) return
     const { dragDom, context: ctx } = this
-    if (!ctx.drags) throw new Error(DESTROY_TIP)
+    if (!ctx._drags) throw new Error(DESTROY_TIP)
     if (!isElement(dragDom)) {
       throw new Error(SUBSCRIBE_TIP('Drag'))
     }
-    ctx.drags.add(this)
+    ctx._drags.add(this)
     this._toggleDraggable(this._draggable = this._isSubscribe = true)
-    ctx.dragItemDragStarts.add(this._dragItemDragStart)
-    ctx.dragItemDragEnds.add(this._dragItemDragEnd)
+    ctx._dragItemDragStarts.add(this._dragItemDragStart)
+    ctx._dragItemDragEnds.add(this._dragItemDragEnd)
     this._addHover()
     this._className.hover && dragDom.addEventListener('mouseleave', this._mouseleave)
     dragDom.addEventListener('dragstart', this._dragStart)
@@ -118,9 +118,9 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
       dragDom.removeEventListener('dragend', this._dragEnd)
       this.dragDom = null!
     }
-    ctx.drags.delete(this)
-    ctx.dragItemDragEnds.delete(this._dragItemDragEnd)
-    ctx.dragItemDragStarts.delete(this._dragItemDragStart)
+    ctx._drags.delete(this)
+    ctx._dragItemDragEnds.delete(this._dragItemDragEnd)
+    ctx._dragItemDragStarts.delete(this._dragItemDragStart)
   }
 
   _mouseenter = () => {
@@ -161,9 +161,9 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     params.dragStart && params.dragStart(monitor)
     let itemDragStart: () => void
     // 调用所有dragItemDragStart函数
-    for (itemDragStart of ctx.dragItemDragStarts) itemDragStart()
+    for (itemDragStart of ctx._dragItemDragStarts) itemDragStart()
     // 调用所有dropItemDragStart函数
-    for (itemDragStart of ctx.dropItemDragStarts) itemDragStart()
+    for (itemDragStart of ctx._dropItemDragStarts) itemDragStart()
     itemDragStart = null!
     // 添加样式
     this._editClass('add', 'dragging')
@@ -201,9 +201,9 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     params.dragEnd && params.dragEnd(monitor)
     let itemDragEnd: () => void
     // 执行所有dndCtx的dragItems中的函数
-    for (itemDragEnd of ctx.dragItemDragEnds) itemDragEnd()
+    for (itemDragEnd of ctx._dragItemDragEnds) itemDragEnd()
     // 执行所有dndCtx的dropItems中的函数
-    for (itemDragEnd of ctx.dropItemDragEnds) itemDragEnd()
+    for (itemDragEnd of ctx._dropItemDragEnds) itemDragEnd()
     this._clearMemory()
     // 移除样式
     this._editClass('remove', 'dragging')
