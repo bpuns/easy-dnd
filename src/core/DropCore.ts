@@ -24,18 +24,18 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   /** 记录上一次dragover的clientX与clientY的位置，避免重复执行dragOver */
   prePosition = { x: null!, y: null! }
   /** 解决子节点重复事件冒泡问题 */
-  #stack = 0
+  _stack = 0
   /** 判断是否注册过 */
-  #isSubscribe = false
+  _isSubscribe = false
   /** 样式 */
-  #className!: DropClassName
+  _className!: DropClassName
   /** 当允许放置元素的方法调用的时候，把canDrop结果存起来，结束拖拽的时候用的到 */
-  #canDrop = false
+  _canDrop = false
 
   constructor(params: IDropCoreConstructorParams<Data, Rubbish>) {
     this.params = params
     this.config = params.config
-    this.#className = this.config.className || {}
+    this._className = this.config.className || {}
     this.context = this.config.context
   }
 
@@ -45,43 +45,43 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   }
 
   subscribe = () => {
-    if (this.#isSubscribe) return
+    if (this._isSubscribe) return
     const { dropDom, context } = this
     if (!context.drops) throw new Error(DESTROY_TIP)
     if (!isElement(dropDom)) {
       throw new Error(SUBSCRIBE_TIP('Drop'))
     }
     context.drops.add(this)
-    this.#isSubscribe = true
-    context.dropItemDragStarts.add(this.#dropItemDragStart)
-    context.dropItemDragEnds.add(this.#dropItemDragEnd)
-    dropDom.addEventListener('dragenter', this.#dragenter)
-    dropDom.addEventListener('dragover', this.#dragover)
-    dropDom.addEventListener('dragleave', this.#dragleave)
-    dropDom.addEventListener('drop', this.#drop)
+    this._isSubscribe = true
+    context.dropItemDragStarts.add(this._dropItemDragStart)
+    context.dropItemDragEnds.add(this._dropItemDragEnd)
+    dropDom.addEventListener('dragenter', this._dragenter)
+    dropDom.addEventListener('dragover', this._dragover)
+    dropDom.addEventListener('dragleave', this._dragleave)
+    dropDom.addEventListener('drop', this._drop)
     return this
   }
 
   unSubscribe = () => {
-    if (!this.#isSubscribe) return
+    if (!this._isSubscribe) return
     const { dropDom } = this
     if (dropDom) {
-      this.#isSubscribe = false
+      this._isSubscribe = false
       // 移除绑定在context上的事件
-      this.context.dropItemDragEnds.delete(this.#dropItemDragEnd)
-      this.context.dropItemDragStarts.delete(this.#dropItemDragStart)
-      dropDom.removeEventListener('dragenter', this.#dragenter)
-      dropDom.removeEventListener('dragover', this.#dragover)
-      dropDom.removeEventListener('dragleave', this.#dragleave)
-      dropDom.removeEventListener('drop', this.#drop)
+      this.context.dropItemDragEnds.delete(this._dropItemDragEnd)
+      this.context.dropItemDragStarts.delete(this._dropItemDragStart)
+      dropDom.removeEventListener('dragenter', this._dragenter)
+      dropDom.removeEventListener('dragover', this._dragover)
+      dropDom.removeEventListener('dragleave', this._dragleave)
+      dropDom.removeEventListener('drop', this._drop)
       this.dropDom = null!
       this.context.drops.delete(this)
     }
   }
 
   /** 修改样式 */
-  #editClass = (operate: 'add' | 'remove', key: keyof DropClassName) => {
-    const classValue = this.#className[key]
+  _editClass = (operate: 'add' | 'remove', key: keyof DropClassName) => {
+    const classValue = this._className[key]
     classValue && this.dropDom?.classList[operate](classValue)
   }
 
@@ -117,10 +117,10 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     if (this.context.dndMode === DND_MODE.SWARAJ) e.stopPropagation()
   }
 
-  #dragenter = (e: DragEvent) => {
+  _dragenter = (e: DragEvent) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
-    if (this.#stack++ === 0) {
+    if (this._stack++ === 0) {
       this.context.enterDom = this.dropDom
       // 如果delay不为0，那么放置到定时器中执行，如果等于0，直接执行
       const logic = () => {
@@ -128,7 +128,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
         if (this.context.enterDom === this.dropDom) {
           this.isEnter = true
           this.params.dragEnter?.(this.monitor)
-          this.#editClass('add', 'dragEnter')
+          this._editClass('add', 'dragEnter')
         }
       }
       const delay = this.context.delay
@@ -140,7 +140,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     }
   }
 
-  #dragover = (e: DragEvent) => {
+  _dragover = (e: DragEvent) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (this.isEnter) {
@@ -158,52 +158,52 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
     }
   }
 
-  #dragleave = (e: DragEvent) => {
+  _dragleave = (e: DragEvent) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
-    if (!--this.#stack) {
+    if (!--this._stack) {
       // 清除定时器
       if (this.enterTimer) {
         clearTimeout(this.enterTimer)
       } else {
         if (this.isEnter) {
           this.isEnter = false
-          this.#editClass('remove', 'dragEnter')
+          this._editClass('remove', 'dragEnter')
           this.params.dragLeave?.(this.monitor)
         }
       }
     }
   }
 
-  #drop = (e: DragEvent) => {
+  _drop = (e: DragEvent) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     this.context.dropInstance = this
-    this.#editClass('remove', 'dragEnter')
+    this._editClass('remove', 'dragEnter')
     this.params.drop?.(this.monitor)
   }
 
   /** 元素开始拖拽的时候触发的方法 */
-  #dropItemDragStart = () => {
+  _dropItemDragStart = () => {
     const { dragStart } = this.params
-    this.#canDrop = this.canDrop()
-    if (!this.#canDrop) return
+    this._canDrop = this.canDrop()
+    if (!this._canDrop) return
     dragStart?.(this.monitor)
     // 添加样式
-    this.#editClass('add', 'canDrop')
+    this._editClass('add', 'canDrop')
   }
 
   /** 元素停止拖拽的时候触发的方法，清空入栈检测 */
-  #dropItemDragEnd = () => {
+  _dropItemDragEnd = () => {
     // 执行dragEnd回调
     const { dragEnd } = this.params
-    if (dragEnd && this.#canDrop) {
+    if (dragEnd && this._canDrop) {
       dragEnd?.(this.monitor)
     }
     // 移除样式
-    this.#editClass('remove', 'canDrop')
+    this._editClass('remove', 'canDrop')
     // 重置标识
-    this.#stack = 0
+    this._stack = 0
     this.isEnter = false
     this.monitor.event = null!
   }

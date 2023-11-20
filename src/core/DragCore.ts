@@ -16,38 +16,38 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   config!: IDragCoreConstructorParams<Data, Rubbish>['config']
   /** monitor */
   monitor = createDragMonitor<Data, Rubbish>(this)
-  /** 验证是否结束，如果调用了unSubscribe，其中isEnd还是false，需要手动调用一次#dragEnd */
-  #isEnd = true
+  /** 验证是否结束，如果调用了unSubscribe，其中isEnd还是false，需要手动调用一次_dragEnd */
+  _isEnd = true
   /** 是否移入 */
-  #isHover = false
+  _isHover = false
   /** 标识是否允许拖拽 */
-  #draggable = true
+  _draggable = true
   /** 记录上一次drag的clientX与clientY的位置，避免重复执行drag */
   prePosition = { x: null!, y: null! }
   /** 判断是否注册过 */
-  #isSubscribe = false
+  _isSubscribe = false
   /** 样式 */
-  #className!: DragClassName
+  _className!: DragClassName
 
   constructor(params: IDragCoreConstructorParams<Data, Rubbish>) {
     this.params = params
     this.config = params.config
     const { className, context, defaultDraggable } = params.config
     this.context = context
-    this.#className = className || {}
-    this.#draggable = defaultDraggable ?? true
+    this._className = className || {}
+    this._draggable = defaultDraggable ?? true
   }
 
   /** 标识是否允许拖拽 */
   get draggable() {
-    return this.#draggable
+    return this._draggable
   }
 
   /** 标识是否允许拖拽 */
   set draggable(draggable: boolean) {
-    if (draggable !== this.#draggable) {
-      this.#toggleDraggable(
-        this.#draggable = draggable
+    if (draggable !== this._draggable) {
+      this._toggleDraggable(
+        this._draggable = draggable
       )
     }
   }
@@ -62,7 +62,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   }
 
   /** 切换拖拽状态 */
-  #toggleDraggable = (draggable: boolean) => {
+  _toggleDraggable = (draggable: boolean) => {
     const { dragDom } = this
     if (isElement(dragDom)) {
       if (draggable) {
@@ -75,69 +75,69 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     }
     // 如果dragDom不存在，说明可能还没调用subscribe，那么直接设置为默认值
     else {
-      this.#draggable = draggable
+      this._draggable = draggable
     }
   }
 
   /** 修改样式 */
-  #editClass = (operate: 'add' | 'remove', key: keyof DragClassName) => {
-    const classValue = this.#className[key]
+  _editClass = (operate: 'add' | 'remove', key: keyof DragClassName) => {
+    const classValue = this._className[key]
     classValue && this.dragDom?.classList[operate](classValue)
   }
 
   subscribe = () => {
-    if (this.#isSubscribe) return
+    if (this._isSubscribe) return
     const { dragDom, context: ctx } = this
     if (!ctx.drags) throw new Error(DESTROY_TIP)
     if (!isElement(dragDom)) {
       throw new Error(SUBSCRIBE_TIP('Drag'))
     }
     ctx.drags.add(this)
-    this.#toggleDraggable(this.#draggable = this.#isSubscribe = true)
-    ctx.dragItemDragStarts.add(this.#dragItemDragStart)
-    ctx.dragItemDragEnds.add(this.#dragItemDragEnd)
-    this.#addHover()
-    this.#className.hover && dragDom.addEventListener('mouseleave', this.#mouseleave)
-    dragDom.addEventListener('dragstart', this.#dragStart)
-    dragDom.addEventListener('drag', this.#drag)
-    dragDom.addEventListener('dragend', this.#dragEnd)
+    this._toggleDraggable(this._draggable = this._isSubscribe = true)
+    ctx.dragItemDragStarts.add(this._dragItemDragStart)
+    ctx.dragItemDragEnds.add(this._dragItemDragEnd)
+    this._addHover()
+    this._className.hover && dragDom.addEventListener('mouseleave', this._mouseleave)
+    dragDom.addEventListener('dragstart', this._dragStart)
+    dragDom.addEventListener('drag', this._drag)
+    dragDom.addEventListener('dragend', this._dragEnd)
     return this
   }
 
   unSubscribe = () => {
-    if (!this.#isSubscribe) return
+    if (!this._isSubscribe) return
     const { dragDom, context:ctx } = this
     if (dragDom) {
-      this.#toggleDraggable(dragDom[BIND_DRAG] = this.#draggable = this.#isSubscribe = false)
-      // 如果结束拖拽标识不为true，需要手动调用#dragEnd还原状态
-      !this.#isEnd && this.#dragEnd(this.monitor.event)
-      this.#removeHover()
-      this.#className.hover && dragDom.removeEventListener('mouseleave', this.#mouseleave)
-      dragDom.removeEventListener('dragstart', this.#dragStart)
-      dragDom.removeEventListener('drag', this.#drag)
-      dragDom.removeEventListener('dragend', this.#dragEnd)
+      this._toggleDraggable(dragDom[BIND_DRAG] = this._draggable = this._isSubscribe = false)
+      // 如果结束拖拽标识不为true，需要手动调用_dragEnd还原状态
+      !this._isEnd && this._dragEnd(this.monitor.event)
+      this._removeHover()
+      this._className.hover && dragDom.removeEventListener('mouseleave', this._mouseleave)
+      dragDom.removeEventListener('dragstart', this._dragStart)
+      dragDom.removeEventListener('drag', this._drag)
+      dragDom.removeEventListener('dragend', this._dragEnd)
       this.dragDom = null!
     }
     ctx.drags.delete(this)
-    ctx.dragItemDragEnds.delete(this.#dragItemDragEnd)
-    ctx.dragItemDragStarts.delete(this.#dragItemDragStart)
+    ctx.dragItemDragEnds.delete(this._dragItemDragEnd)
+    ctx.dragItemDragStarts.delete(this._dragItemDragStart)
   }
 
-  #mouseenter = () => {
-    if (!this.context.dragDom && this.#draggable) {
-      this.#isHover = true
-      this.#editClass('add', 'hover')
+  _mouseenter = () => {
+    if (!this.context.dragDom && this._draggable) {
+      this._isHover = true
+      this._editClass('add', 'hover')
     }
   }
 
-  #mouseleave = () => {
-    if (this.#isHover && this.#draggable) {
-      this.#isHover = false
-      this.#editClass('remove', 'hover')
+  _mouseleave = () => {
+    if (this._isHover && this._draggable) {
+      this._isHover = false
+      this._editClass('remove', 'hover')
     }
   }
 
-  #dragStart = (e: DragEvent) => {
+  _dragStart = (e: DragEvent) => {
     const { monitor, context: ctx, params, config } = this
     // dragStart必须阻止冒泡，不然在多层嵌套下会出现问题
     e.stopPropagation()
@@ -150,7 +150,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     // 存储拖拽实例
     ctx.dragInstance = this
     // unSubscribe的时候要用
-    this.#isEnd = false
+    this._isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 
     const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
     let child: HTMLElement
@@ -166,10 +166,10 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     for (itemDragStart of ctx.dropItemDragStarts) itemDragStart()
     itemDragStart = null!
     // 添加样式
-    this.#editClass('add', 'dragging')
+    this._editClass('add', 'dragging')
   }
 
-  #drag = (e: DragEvent) => {
+  _drag = (e: DragEvent) => {
     if (this.params.drag) {
       this.monitor.event = e
       const { dragCoord } = this.context
@@ -186,10 +186,10 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     }
   }
 
-  #dragEnd = (e: DragEvent) => {
+  _dragEnd = (e: DragEvent) => {
     const { monitor, params, context: ctx } = this
     // 把状态还原，不然组件卸载的时候，会多触发一次dragEnd方法
-    this.#isEnd = true
+    this._isEnd = true
     monitor.event = e
     // 还原pointer-events
     const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
@@ -204,15 +204,15 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     for (itemDragEnd of ctx.dragItemDragEnds) itemDragEnd()
     // 执行所有dndCtx的dropItems中的函数
     for (itemDragEnd of ctx.dropItemDragEnds) itemDragEnd()
-    this.#clearMemory()
+    this._clearMemory()
     // 移除样式
-    this.#editClass('remove', 'dragging')
+    this._editClass('remove', 'dragging')
     // 清除拖拽实例
     setTimeout(() => ctx.dragInstance = null)
   }
 
   /** 清空内存占用，避免内存泄露 */
-  #clearMemory = () => {
+  _clearMemory = () => {
     const ctx = this.context
     ctx.dragDom = null!
     ctx.dragData = null!
@@ -220,27 +220,27 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     this.monitor.event = null!
   }
 
-  #addHover = () => {
-    if (this.#className.hover && this.dragDom) {
-      this.dragDom.addEventListener('mouseenter', this.#mouseenter)
+  _addHover = () => {
+    if (this._className.hover && this.dragDom) {
+      this.dragDom.addEventListener('mouseenter', this._mouseenter)
     }
   }
 
-  #removeHover = () => {
-    if (this.#className.hover && this.dragDom) {
-      this.dragDom.removeEventListener('mouseenter', this.#mouseenter)
+  _removeHover = () => {
+    if (this._className.hover && this.dragDom) {
+      this.dragDom.removeEventListener('mouseenter', this._mouseenter)
     }
   }
 
-  #dragItemDragStart = () => {
-    this.#mouseleave()
+  _dragItemDragStart = () => {
+    this._mouseleave()
     // 拖拽开始需要移除hover监听，不然结束拖拽，原来拖拽位置会再触发一次mouseEnter（浏览器问题，无法解决）
-    this.#removeHover()
+    this._removeHover()
   }
 
-  #dragItemDragEnd = () => {
+  _dragItemDragEnd = () => {
     // 拖拽结束在绑定一次hover事件
-    setTimeout(() => this.#addHover())
+    setTimeout(() => this._addHover())
   }
 
 }
