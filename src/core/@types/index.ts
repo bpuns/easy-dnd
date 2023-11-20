@@ -23,6 +23,8 @@ interface IDnDProvider<Data, Rubbish> {
   dragData: Data
   /** 某个元素执行了drop，那么这个drop的实例就会存储在这里，在整个拖拽生命周期结束后，此变量也会被删除 */
   dropInstance: DropCore | null
+  /** 某个元素开始拖拽，那么这个drag的实例就会存储在这里，在整个拖拽生命周期结束后，此变量也会被删除 */
+  dragInstance: DragCore | null
   /** 保存当前dragEnter的dom是哪一个 */
   enterDom: HTMLElement
   /** dragEnter延时多长事件触发 */

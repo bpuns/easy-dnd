@@ -1,0 +1,49 @@
+<!-- 上下文销毁 -->
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<style>
+  .a {
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgb(0, 0, 0);
+  }
+</style>
+
+<div class="a">
+  盒子A
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore
+  } from 'easy-dnd'
+
+  import * as dnd from 'easy-dnd'
+
+  const context = createProvider()
+
+  // 销毁
+  context.destroy()
+
+  console.log(context)
+
+  // 上下文销毁，不能再注册
+  const drag = new DragCore({
+    config: {
+      type: '1',
+      context
+    }
+  })
+    .registerDom(document.querySelector('.a'))
+    .subscribe()
+
+</script>

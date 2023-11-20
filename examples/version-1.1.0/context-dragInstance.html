@@ -1,0 +1,101 @@
+<!-- 拖拽上下文中存储拖拽实例 -->
+<script type="importmap">
+  {
+    "imports": {
+      "easy-dnd": "../../build/index.js"
+    }
+  }
+</script>
+
+<style>
+  .a {
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgb(0, 0, 0);
+  }
+
+  .b {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed rgb(0, 0, 0)
+  }
+</style>
+
+<div class="a a1">
+  盒子A1
+</div>
+
+<div class="a a2">
+  盒子A2
+</div>
+
+<div class="b">
+  盒子B
+</div>
+
+<script type="module">
+
+  import {
+    createProvider,
+    DragCore,
+    DropCore
+  } from 'easy-dnd'
+
+  import * as dnd from 'easy-dnd'
+
+  const context = createProvider()
+
+  const DRAG_TYPE = 'a'
+
+  // 创建拖拽对象
+  const drag1 = new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context
+    },
+    dragStart(monitor) {
+      console.log(
+        'drag1 dragStart',
+        monitor.getContext().dragInstance
+      )
+    },
+    dragEnd(monitor) {
+      console.log('drag1 dragEnd', monitor.getContext().dragInstance)
+      setTimeout(() => {
+        console.log('drag1 dragEnd(setTimeout)', monitor.getContext().dragInstance)
+      }, 100)
+    }
+  })
+    .registerDom(document.querySelector('.a1'))
+    .subscribe()
+
+  // 创建拖拽对象
+  const drag2 = new DragCore({
+    config: {
+      type: DRAG_TYPE,
+      context
+    },
+    dragStart(monitor) {
+      console.log(
+        'drag2 dragStart',
+        monitor.getContext().dragInstance
+      )
+    }
+  })
+    .registerDom(document.querySelector('.a2'))
+    .subscribe()
+
+  // 创建放置实例
+  const drop = new DropCore({
+    config: {
+      context,
+      acceptType: new Set([DRAG_TYPE]),
+    },
+    dragStart() {
+      console.log('有允许放置的元素开始拖拽')
+    }
+  })
+    .registerDom(document.querySelector('.b'))
+    .subscribe()
+
+</script>

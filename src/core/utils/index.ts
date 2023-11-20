@@ -133,6 +133,7 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
     delay,
     dragCoord,
     dropInstance:       null,
+    dragInstance:       null,
     dragType:           null!,
     dragDom:            null!,
     dragData:           null!,
@@ -147,7 +148,9 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
       unbind()
       ctx.drops.forEach(t => t.unSubscribe())
       ctx.drags.forEach(t => t.unSubscribe())
-      ctx.drops = ctx.drags = null!
+      Object.keys(ctx).forEach(k=>{
+        ctx[k] = null
+      })
     },
     getRubbish: () => rubbish
   }

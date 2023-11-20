@@ -27,7 +27,7 @@ function watchPackage(_package) {
     output: {
       file:      join(outputFolder, 'index.js'),
       format:    'es',
-      sourcemap: false
+      sourcemap: true
     },
     watch: {
       // 只监听src文件夹
@@ -38,13 +38,13 @@ function watchPackage(_package) {
         if (n === LIBRARY_NAME) return '../'
         return n
       }),
-      terser({
-        ie8:      false,
-        compress: true,
-        format:   {
-          quote_style: 1
-        }
-      }),
+      // terser({
+      //   ie8:      false,
+      //   compress: false,
+      //   format:   {
+      //     quote_style: 1
+      //   }
+      // }),
       typescript({
         tsconfig:         TSCONFIG_PATH,
         tsconfigOverride: {

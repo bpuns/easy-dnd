@@ -87,15 +87,15 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
 
   subscribe = () => {
     if (this.#isSubscribe) return
-    const { dragDom, context } = this
-    if (!context.drags) throw new Error(DESTROY_TIP)
+    const { dragDom, context: ctx } = this
+    if (!ctx.drags) throw new Error(DESTROY_TIP)
     if (!isElement(dragDom)) {
       throw new Error(SUBSCRIBE_TIP('Drag'))
     }
-    context.drags.add(this)
+    ctx.drags.add(this)
     this.#toggleDraggable(this.#draggable = this.#isSubscribe = true)
-    context.dragItemDragStarts.add(this.#dragItemDragStart)
-    context.dragItemDragEnds.add(this.#dragItemDragEnd)
+    ctx.dragItemDragStarts.add(this.#dragItemDragStart)
+    ctx.dragItemDragEnds.add(this.#dragItemDragEnd)
     this.#addHover()
     this.#className.hover && dragDom.addEventListener('mouseleave', this.#mouseleave)
     dragDom.addEventListener('dragstart', this.#dragStart)
@@ -106,7 +106,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
 
   unSubscribe = () => {
     if (!this.#isSubscribe) return
-    const { dragDom, context } = this
+    const { dragDom, context:ctx } = this
     if (dragDom) {
       this.#toggleDraggable(dragDom[BIND_DRAG] = this.#draggable = this.#isSubscribe = false)
       // 如果结束拖拽标识不为true，需要手动调用#dragEnd还原状态
@@ -118,9 +118,9 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
       dragDom.removeEventListener('dragend', this.#dragEnd)
       this.dragDom = null!
     }
-    context.drags.delete(this)
-    context.dragItemDragEnds.delete(this.#dragItemDragEnd)
-    context.dragItemDragStarts.delete(this.#dragItemDragStart)
+    ctx.drags.delete(this)
+    ctx.dragItemDragEnds.delete(this.#dragItemDragEnd)
+    ctx.dragItemDragStarts.delete(this.#dragItemDragStart)
   }
 
   #mouseenter = () => {
@@ -138,15 +138,17 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   }
 
   #dragStart = (e: DragEvent) => {
-    const { monitor, context, params, config } = this
+    const { monitor, context: ctx, params, config } = this
     // dragStart必须阻止冒泡，不然在多层嵌套下会出现问题
     e.stopPropagation()
     monitor.event = e
     // 存储状态到全局
-    context.dragType = config.type
-    context.dragDom = this.dragDom
-    context.dropInstance = null
-    context.dragData = config.data?.()
+    ctx.dragType = config.type
+    ctx.dragDom = this.dragDom
+    ctx.dropInstance = null
+    ctx.dragData = config.data?.()
+    // 存储拖拽实例
+    ctx.dragInstance = this
     // unSubscribe的时候要用
     this.#isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 
@@ -159,9 +161,9 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     params.dragStart && params.dragStart(monitor)
     let itemDragStart: () => void
     // 调用所有dragItemDragStart函数
-    for (itemDragStart of this.context.dragItemDragStarts) itemDragStart()
+    for (itemDragStart of ctx.dragItemDragStarts) itemDragStart()
     // 调用所有dropItemDragStart函数
-    for (itemDragStart of this.context.dropItemDragStarts) itemDragStart()
+    for (itemDragStart of ctx.dropItemDragStarts) itemDragStart()
     itemDragStart = null!
     // 添加样式
     this.#editClass('add', 'dragging')
@@ -185,7 +187,7 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   }
 
   #dragEnd = (e: DragEvent) => {
-    const { monitor, params } = this
+    const { monitor, params, context: ctx } = this
     // 把状态还原，不然组件卸载的时候，会多触发一次dragEnd方法
     this.#isEnd = true
     monitor.event = e
@@ -199,19 +201,22 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
     params.dragEnd && params.dragEnd(monitor)
     let itemDragEnd: () => void
     // 执行所有dndCtx的dragItems中的函数
-    for (itemDragEnd of this.context.dragItemDragEnds) itemDragEnd()
+    for (itemDragEnd of ctx.dragItemDragEnds) itemDragEnd()
     // 执行所有dndCtx的dropItems中的函数
-    for (itemDragEnd of this.context.dropItemDragEnds) itemDragEnd()
+    for (itemDragEnd of ctx.dropItemDragEnds) itemDragEnd()
     this.#clearMemory()
     // 移除样式
     this.#editClass('remove', 'dragging')
+    // 清除拖拽实例
+    setTimeout(() => ctx.dragInstance = null)
   }
 
   /** 清空内存占用，避免内存泄露 */
   #clearMemory = () => {
-    this.context.dragDom = null!
-    this.context.dragData = null!
-    this.context.enterDom = null!
+    const ctx = this.context
+    ctx.dragDom = null!
+    ctx.dragData = null!
+    ctx.enterDom = null!
     this.monitor.event = null!
   }
 
