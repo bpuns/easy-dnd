@@ -45,6 +45,15 @@ interface IDnDProvider<Data, Rubbish> {
   _drops: Set<DropCore>
   /** 存储当前上下文下所有drag实例 */
   _drags: Set<DragCore>
+  /** 存储拖拽监听 */
+  _dragListen: {
+    /** 存储拖拽中的要触发的dragging */
+    _ing: ((ctx: IDnDProvider<Data, Rubbish>) => void)[]
+    /** 存储绑定的监听拖拽函数 */
+    _queue: (
+      Omit<IListenDragParams<Data, Rubbish>, 'context'> & { unbind: () => void }
+    )[]
+  }
 }
 
 /** Drag 构造函数参数 */
@@ -199,7 +208,7 @@ type IListenDragParams<Data, Rubbish> = {
   /** 拖拽上下文 */
   context: IDnDProvider<Data, Rubbish>
   /** 此次拖拽是否需要监听 */
-  needListen?: (ctx: IDnDProvider<Data, Rubbish>) => void
+  filter?: (ctx: IDnDProvider<Data, Rubbish>) => void
   /** 拖拽中触发 */
   dragging?: (ctx: IDnDProvider<Data, Rubbish>) => void
 }

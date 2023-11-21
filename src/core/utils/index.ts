@@ -7,6 +7,7 @@ import {
 } from '../@types'
 import type { DragCore } from '../DragCore'
 import type { DropCore } from '../DropCore'
+import { spliceItem } from './private'
 
 /** 判断是否绑定了拖拽 */
 export const BIND_DRAG = Symbol('bind-drag')
@@ -20,59 +21,6 @@ export const DND_CTX = Symbol('easy-dnd')
  */
 export function isElement(dom: unknown): dom is HTMLElement {
   return dom instanceof HTMLElement
-}
-
-/**
- * 创建拖拽事件对象
- * @param instance 
- * @returns 
- */
-export function createDropMonitor<Data, Rubbish>(instance: DropCore<Data, Rubbish>): IDropCoreMonitor<Data, Rubbish> {
-
-  const getDomRect = () => instance.dropDom.getBoundingClientRect()
-
-  const getCtx = () => instance.context
-
-  const canDropMonitor = {
-    event:           null!,
-    getContext:      getCtx,
-    getDropInstance: () => getCtx().dropInstance,
-    getDragType:     () => getCtx().dragType,
-    getDragData:     () => getCtx().dragData
-  }
-
-  return {
-    ...canDropMonitor,
-    getDragDom: () => getCtx().dragDom,
-    getDomRect,
-    isOverTop:  (domRect?: DOMRect, middleExists?: boolean) => {
-      const { y, height } = domRect || getDomRect()
-      return getCtx().dragCoord.y < (y + height / (middleExists ? 3 : 2))
-    },
-    isOverBottom: (domRect?: DOMRect, middleExists?: boolean) => {
-      const { y, height } = domRect || getDomRect()
-      return getCtx().dragCoord.y > (y + height / (middleExists ? 1.5 : 2))
-    },
-    isOverLeft: (domRect?: DOMRect, middleExists?: boolean) => {
-      const { x, width } = domRect || getDomRect()
-      return getCtx().dragCoord.x < (x + width / (middleExists ? 3 : 2))
-    },
-    isOverRight: (domRect?: DOMRect, middleExists?: boolean) => {
-      const { x, width } = domRect || getDomRect()
-      return getCtx().dragCoord.x > (x + width / (middleExists ? 1.5 : 2))
-    },
-    isOverRowCenter(domRect?: DOMRect) {
-      domRect = domRect || getDomRect()
-      return !this.isOverTop(domRect, true) && !this.isOverBottom(domRect, true)
-    },
-    isOverColumnCenter(domRect?: DOMRect) {
-      domRect = domRect || getDomRect()
-      return !this.isOverLeft(domRect, true) && !this.isOverRight(domRect, true)
-    },
-    getRubbish: () => getCtx().getRubbish(),
-    // @ts-ignore 给这个库自己用的
-    _s:         canDropMonitor
-  }
 }
 
 interface ProviderConfig {
@@ -101,9 +49,10 @@ function bindGetContextCoords(dragCoord: DragCoord) {
     html.addEventListener('dragover', dragOver, true)
     unbindGetContextCoords = () => html.removeEventListener('dragover', dragOver, true)
   }
-  const pushSize = dragCoords.push(dragCoord)
+  dragCoords.push(dragCoord)
   return () => {
-    dragCoords.splice(pushSize - 1, 1)
+    // 先找到push进去的dragCoord的索引，再展示
+    spliceItem(dragCoords, dragCoord)
     if (!dragCoords.length) {
       unbindGetContextCoords()
       unbindGetContextCoords = undefined
@@ -153,27 +102,101 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
     _dragItemDragStarts: new Set,
     _dragItemDragEnds:   new Set,
     _dropItemDragStarts: new Set,
-    _dropItemDragEnds:   new Set
+    _dropItemDragEnds:   new Set,
+    _dragListen:         {
+      _ing:   null!,
+      _queue: []
+    }
   }
 
   return ctx
 
 }
 
-export function onListenDrag<Data, Rubbish>({ context, dragging, needListen = () => true }: IListenDragParams<Data, Rubbish>) {
+/**
+ * 创建拖拽监听
+ * @param {ProviderConfig} param 
+ * @returns 
+ */
+export function onListenDrag<Data, Rubbish>({ context, dragging, filter = () => true }: IListenDragParams<Data, Rubbish>) {
   if (typeof dragging !== 'function') return
-  const unbind = () => {
-    // TODO:  
+  // 获取存储拖拽监听的任务队列
+  const queue = context?._dragListen?._queue
+  if (!Array.isArray(queue)) return
+  // context 存起来的内容  { needListen, dragging, unbind }
+  const queueItem: (typeof queue)[number] = {
+    filter,
+    dragging,
+    // 删除context上的监听
+    unbind: () => spliceItem(queue, queueItem)
   }
+  queue.push(queueItem)
+  return queueItem.unbind
 }
 
+/**
+ * 创建拖拽事件中间对象
+ * @param instance 拖拽实例
+ * @returns 
+ */
 export function createDragMonitor<Data, Rubbish>(instance: DragCore<Data, Rubbish>): IDragCoreMonitor<Data, Rubbish> {
-
   const getCtx = () => instance.context
-
   return {
     event:      null!,
     getContext: getCtx,
     getRubbish: () => getCtx().getRubbish()
+  }
+}
+
+/**
+ * 创建drop事件中间对象
+ * @param instance 
+ * @returns 
+ */
+export function createDropMonitor<Data, Rubbish>(instance: DropCore<Data, Rubbish>): IDropCoreMonitor<Data, Rubbish> {
+
+  const getDomRect = () => instance.dropDom.getBoundingClientRect()
+
+  const getCtx = () => instance.context
+
+  const canDropMonitor = {
+    event:           null!,
+    getContext:      getCtx,
+    getDropInstance: () => getCtx().dropInstance,
+    getDragType:     () => getCtx().dragType,
+    getDragData:     () => getCtx().dragData
+  }
+
+  return {
+    ...canDropMonitor,
+    getDragDom: () => getCtx().dragDom,
+    getDomRect,
+    isOverTop:  (domRect?: DOMRect, middleExists?: boolean) => {
+      const { y, height } = domRect || getDomRect()
+      return getCtx().dragCoord.y < (y + height / (middleExists ? 3 : 2))
+    },
+    isOverBottom: (domRect?: DOMRect, middleExists?: boolean) => {
+      const { y, height } = domRect || getDomRect()
+      return getCtx().dragCoord.y > (y + height / (middleExists ? 1.5 : 2))
+    },
+    isOverLeft: (domRect?: DOMRect, middleExists?: boolean) => {
+      const { x, width } = domRect || getDomRect()
+      return getCtx().dragCoord.x < (x + width / (middleExists ? 3 : 2))
+    },
+    isOverRight: (domRect?: DOMRect, middleExists?: boolean) => {
+      const { x, width } = domRect || getDomRect()
+      return getCtx().dragCoord.x > (x + width / (middleExists ? 1.5 : 2))
+    },
+    isOverRowCenter(domRect?: DOMRect) {
+      domRect = domRect || getDomRect()
+      return !this.isOverTop(domRect, true) && !this.isOverBottom(domRect, true)
+    },
+    isOverColumnCenter(domRect?: DOMRect) {
+      domRect = domRect || getDomRect()
+      return !this.isOverLeft(domRect, true) && !this.isOverRight(domRect, true)
+    },
+    getRubbish: () => getCtx().getRubbish(),
+    // @ts-ignore 给这个库自己用的
+    _s:         canDropMonitor
   }
 }

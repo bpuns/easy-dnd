@@ -1,6 +1,6 @@
 import type { IDnDProvider, IDragCoreConstructorParams, DragDropBase } from './@types'
 import { BIND_DRAG, isElement, createDragMonitor } from './utils'
-import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/tips'
+import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/private'
 
 type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
 

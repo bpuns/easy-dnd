@@ -1,7 +1,7 @@
 import type { IDnDProvider, DragDropBase, IDropCoreConstructorParams } from './@types'
 import { DND_MODE } from './@types'
 import { BIND_DRAG, isElement, createDropMonitor } from './utils'
-import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/tips'
+import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/private'
 
 type DropClassName = IDropCoreConstructorParams<any, any>['config']['className']
 
