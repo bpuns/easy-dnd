@@ -1,15 +1,14 @@
-import type { IDnDProvider, IDragCoreConstructorParams, DragDropBase } from './@types'
+import type { IDnDProvider, IDragCoreConstructorParams } from './@types'
+import { DragDropBase } from './@types'
 import { BIND_DRAG, isElement, createDragMonitor } from './utils'
 import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/private'
 
 type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
 
-export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
+export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubbish> {
 
   /** 用于绑定drag的dom函数 */
   dragDom!: HTMLElement
-  /** 拖拽上下文 */
-  context!: IDnDProvider<Data, Rubbish>
   /** params */
   params!: IDragCoreConstructorParams<Data, Rubbish>
   /** params中的配置 */
@@ -22,14 +21,13 @@ export class DragCore<Data = any, Rubbish = any> implements DragDropBase {
   _isHover = false
   /** 标识是否允许拖拽 */
   _draggable = true
-  /** 记录上一次drag的clientX与clientY的位置，避免重复执行drag */
-  prePosition = { x: null!, y: null! }
   /** 判断是否注册过 */
   _isSubscribe = false
   /** 样式 */
   _className!: DragClassName
 
   constructor(params: IDragCoreConstructorParams<Data, Rubbish>) {
+    super()
     this.params = params
     this.config = params.config
     const { className, context, defaultDraggable } = params.config

@@ -5,7 +5,7 @@ import type { DragCore } from '../DragCore'
 enum DND_MODE {
   /** 范围模式 */
   SCOPE = 'scope',
-  /** 自治模式 */
+  /** 自治模式（默认） */
   SWARAJ = 'swaraj'
 }
 
@@ -183,15 +183,20 @@ interface IDropCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbis
   isOverColumnCenter: (domRect?: DOMRect) => boolean
 }
 
-abstract class DragDropBase {
-  /** 记录上一次dragover/drag的clientX与clientY的位置，避免重复执行dragOver */
-  prePosition: { x: number, y: number }
+abstract class DragDropBase<Data, Rubbish> {
+
+  /** 记录上一次dragover/drag的clientX与clientY的位置，避免重复执行dragOver | drag */
+  prePosition: { x: number, y: number } = { x: null!, y: null! }
+  /** 拖拽上下文 */
+  context!: IDnDProvider<Data, Rubbish>
+
   /** 注册dom */
   abstract registerDom: (dom: HTMLElement) => any
   /** 绑定事件 */
   abstract subscribe: () => void
   /** 取消绑定事件 */
   abstract unSubscribe: () => void
+  
 }
 
 /** 把context取出、来，hooks中不需要加入context */
@@ -209,17 +214,17 @@ type IListenDragParams<Data, Rubbish> = {
   context: IDnDProvider<Data, Rubbish>
   /** 此次拖拽是否需要监听 */
   filter?: (ctx: IDnDProvider<Data, Rubbish>) => void
-  /** 拖拽中触发 */
-  dragging?: (ctx: IDnDProvider<Data, Rubbish>) => void
 }
+  & Pick<IDragCoreConstructorParams<Data, Rubbish>, 'dragStart' | 'drag' | 'dragEnd'>
+  & Pick<IDropCoreConstructorParams<Data, Rubbish>, 'dragEnter' | 'dragOver' | 'dragLeave' | 'drop'>
 
 export {
-  DND_MODE
+  DND_MODE,
+  DragDropBase
 }
 
 export type {
   IDnDProvider,
-  DragDropBase,
   IDragCoreMonitor,
   IDropCoreMonitor,
   IDragHooksParams,

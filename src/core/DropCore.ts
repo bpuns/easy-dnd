@@ -1,16 +1,14 @@
-import type { IDnDProvider, DragDropBase, IDropCoreConstructorParams } from './@types'
-import { DND_MODE } from './@types'
+import { IDnDProvider, IDropCoreConstructorParams } from './@types'
+import { DND_MODE, DragDropBase } from './@types'
 import { BIND_DRAG, isElement, createDropMonitor } from './utils'
 import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/private'
 
 type DropClassName = IDropCoreConstructorParams<any, any>['config']['className']
 
-export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
+export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubbish> {
 
   /** 用于绑定drop的dom函数 */
   dropDom!: HTMLElement
-  /** 拖拽上下文 */
-  context!: IDnDProvider<Data, Rubbish>
   /** params */
   params!: IDropCoreConstructorParams<Data, Rubbish>
   /** params中的配置 */
@@ -21,8 +19,6 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   isEnter: boolean = false
   /** 进入定时器 */
   enterTimer!: number
-  /** 记录上一次dragover的clientX与clientY的位置，避免重复执行dragOver */
-  prePosition = { x: null!, y: null! }
   /** 解决子节点重复事件冒泡问题 */
   _stack = 0
   /** 判断是否注册过 */
@@ -33,6 +29,7 @@ export class DropCore<Data = any, Rubbish = any> implements DragDropBase {
   _canDrop = false
 
   constructor(params: IDropCoreConstructorParams<Data, Rubbish>) {
+    super()
     this.params = params
     this.config = params.config
     this._className = this.config.className || {}

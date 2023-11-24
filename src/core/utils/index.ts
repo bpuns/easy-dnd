@@ -7,7 +7,10 @@ import {
 } from '../@types'
 import type { DragCore } from '../DragCore'
 import type { DropCore } from '../DropCore'
-import { spliceItem } from './private'
+import {
+  spliceItem,
+  bindGetContextCoords
+} from './private'
 
 /** 判断是否绑定了拖拽 */
 export const BIND_DRAG = Symbol('bind-drag')
@@ -30,54 +33,20 @@ interface ProviderConfig {
   delay?: number
 }
 
-type DragCoord = IDnDProvider<any, any>['dragCoord']
-const dragCoords: DragCoord[] = []
-let unbindGetContextCoords: () => void
-
-/**
- * Firefox浏览器无法获取拖拽中的位置，因此需要在html上绑定drag，获取拖拽位置
- * @param dragCoord 
- * @returns 
- */
-function bindGetContextCoords(dragCoord: DragCoord) {
-  if (!unbindGetContextCoords) {
-    const dragOver = (e: DragEvent) => {
-      dragCoord.x = e.clientX
-      dragCoord.y = e.clientY
-    }
-    const html = document.documentElement
-    html.addEventListener('dragover', dragOver, true)
-    unbindGetContextCoords = () => html.removeEventListener('dragover', dragOver, true)
-  }
-  dragCoords.push(dragCoord)
-  return () => {
-    // 先找到push进去的dragCoord的索引，再展示
-    spliceItem(dragCoords, dragCoord)
-    if (!dragCoords.length) {
-      unbindGetContextCoords()
-      unbindGetContextCoords = undefined
-    }
-  }
-}
-
 /**
  * 创建拖拽作用域下的基本数据
  * @param {ProviderConfig} param
  * @returns 
  */
 export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay = 0 }: ProviderConfig = {}) {
-
   if (delay < 0 || isNaN(delay)) delay = 0
-
   const rubbish: any = {}
-
   const dragCoord = Object.seal({
     x: 0,
     y: 0
   })
-
+  // TIP: 
   const unbind = bindGetContextCoords(dragCoord)
-
   const ctx: IDnDProvider<Data, Rubbish> = {
     dndMode,
     delay,
@@ -108,9 +77,7 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
       _queue: []
     }
   }
-
   return ctx
-
 }
 
 /**
@@ -118,15 +85,15 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
  * @param {ProviderConfig} param 
  * @returns 
  */
-export function onListenDrag<Data, Rubbish>({ context, dragging, filter = () => true }: IListenDragParams<Data, Rubbish>) {
-  if (typeof dragging !== 'function') return
+export function onListenDrag<Data, Rubbish>({ context, filter = () => true }: IListenDragParams<Data, Rubbish>) {
+  // if (typeof dragging !== 'function') return
   // 获取存储拖拽监听的任务队列
   const queue = context?._dragListen?._queue
   if (!Array.isArray(queue)) return
   // context 存起来的内容  { needListen, dragging, unbind }
   const queueItem: (typeof queue)[number] = {
     filter,
-    dragging,
+    // dragging,
     // 删除context上的监听
     unbind: () => spliceItem(queue, queueItem)
   }
