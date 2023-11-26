@@ -14,7 +14,6 @@ import {
   type IDropCoreConstructorParams,
   type IDragHooksParams,
   type IDropHooksParams,
-  DND_MODE,
   DragCore,
   DropCore,
   createProvider

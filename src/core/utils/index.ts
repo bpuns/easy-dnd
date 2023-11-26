@@ -9,6 +9,7 @@ import type { DragCore } from '../DragCore'
 import type { DropCore } from '../DropCore'
 import {
   spliceItem,
+  DESTROY_TIP,
   bindGetContextCoords
 } from './private'
 
@@ -85,16 +86,13 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
  * @param {ProviderConfig} param 
  * @returns 
  */
-export function onListenDrag<Data, Rubbish>({ context, filter = () => true }: IListenDragParams<Data, Rubbish>) {
-  // if (typeof dragging !== 'function') return
+export function onListenDrag<Data, Rubbish>({ context, filter = () => true, ...events }: IListenDragParams<Data, Rubbish>) {
   // 获取存储拖拽监听的任务队列
   const queue = context?._dragListen?._queue
-  if (!Array.isArray(queue)) return
-  // context 存起来的内容  { needListen, dragging, unbind }
+  if (!Array.isArray(queue)) throw new Error(DESTROY_TIP)
   const queueItem: (typeof queue)[number] = {
+    ...events,
     filter,
-    // dragging,
-    // 删除context上的监听
     unbind: () => spliceItem(queue, queueItem)
   }
   queue.push(queueItem)

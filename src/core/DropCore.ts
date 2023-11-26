@@ -118,17 +118,19 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (this._stack++ === 0) {
-      this.context.enterDom = this.dropDom
+      const ctx = this.context
+      ctx.enterDom = this.dropDom
       // 如果delay不为0，那么放置到定时器中执行，如果等于0，直接执行
       const logic = () => {
         this.enterTimer = null!
-        if (this.context.enterDom === this.dropDom) {
+        if (ctx.enterDom === this.dropDom) {
           this.isEnter = true
-          this.params.dragEnter?.(this.monitor)
+          this._execListen('dragEnter', ctx)
+          this.params.dragEnter?.(this.monitor, ctx)
           this._editClass('add', 'dragEnter')
         }
       }
-      const delay = this.context.delay
+      const delay = ctx.delay
       if (delay > 0) {
         this.enterTimer = setTimeout(logic, delay) as unknown as number
       } else {
@@ -141,8 +143,8 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (this.isEnter) {
-      const { dragCoord } = this.context
-      const prePosition = this.prePosition
+      const { context: ctx, prePosition } = this
+      const { dragCoord } = ctx
       // 避免重复执行dragOver
       if (
         prePosition.x !== dragCoord.x ||
@@ -150,7 +152,8 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       ) {
         prePosition.x = e.clientX
         prePosition.y = e.clientY
-        this.params.dragOver?.(this.monitor)
+        this._execListen('dragOver', ctx)
+        this.params.dragOver?.(this.monitor, ctx)
       }
     }
   }
@@ -164,9 +167,11 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
         clearTimeout(this.enterTimer)
       } else {
         if (this.isEnter) {
+          const ctx = this.context
           this.isEnter = false
           this._editClass('remove', 'dragEnter')
-          this.params.dragLeave?.(this.monitor)
+          this._execListen('dragLeave', ctx)
+          this.params.dragLeave?.(this.monitor, ctx)
         }
       }
     }
@@ -178,7 +183,8 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     const ctx = this.context
     ctx.dropInstance = this
     this._editClass('remove', 'dragEnter')
-    this.params.drop?.(this.monitor)
+    this._execListen('drop', ctx)
+    this.params.drop?.(this.monitor, ctx)
     // 清除放置实例
     setTimeout(() => ctx.dropInstance = null)
   }
@@ -188,7 +194,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     const { dragStart } = this.params
     this._canDrop = this.canDrop()
     if (!this._canDrop) return
-    dragStart?.(this.monitor)
+    dragStart?.(this.monitor, this.context)
     // 添加样式
     this._editClass('add', 'canDrop')
   }
@@ -198,7 +204,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     // 执行dragEnd回调
     const { dragEnd } = this.params
     if (dragEnd && this._canDrop) {
-      dragEnd?.(this.monitor)
+      dragEnd?.(this.monitor, this.context)
     }
     // 移除样式
     this._editClass('remove', 'canDrop')

@@ -33,7 +33,7 @@ const drop = useDrop<string, null>({
       return true
     }
   },
-  drop(monitor) {
+  drop(monitor, ctx) {
     child.value = monitor.getDragData()
   }
 })

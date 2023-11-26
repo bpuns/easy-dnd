@@ -104,7 +104,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
 
   unSubscribe = () => {
     if (!this._isSubscribe) return
-    const { dragDom, context:ctx } = this
+    const { dragDom, context: ctx } = this
     if (dragDom) {
       this._toggleDraggable(dragDom[BIND_DRAG] = this._draggable = this._isSubscribe = false)
       // 如果结束拖拽标识不为true，需要手动调用_dragEnd还原状态
@@ -144,43 +144,44 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     ctx.dragType = config.type
     ctx.dragDom = this.dragDom
     ctx.dropInstance = null
+    // 存储拖拽数据
     ctx.dragData = config.data?.()
     // 存储拖拽实例
     ctx.dragInstance = this
     // unSubscribe的时候要用
     this._isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 
-    const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
-    let child: HTMLElement
-    for (child of childNodes) {
-      child['style']['pointerEvents'] = 'none'
-    }
+    Array.from(this.dragDom.children).forEach(child => {
+      child?.['style']?.setProperty('pointerEvents', 'none')
+    })
+    // 拖拽监听函数
+    const { _dragListen } = ctx
+    _dragListen._ing = _dragListen._queue.filter(t => t.filter(ctx))
+    this._execListen('dragStart', ctx)
     // 调用状态变化回调
-    params.dragStart && params.dragStart(monitor)
+    params?.dragStart?.(monitor, ctx)
     let itemDragStart: () => void
     // 调用所有dragItemDragStart函数
     for (itemDragStart of ctx._dragItemDragStarts) itemDragStart()
     // 调用所有dropItemDragStart函数
     for (itemDragStart of ctx._dropItemDragStarts) itemDragStart()
-    itemDragStart = null!
     // 添加样式
     this._editClass('add', 'dragging')
   }
 
   _drag = (e: DragEvent) => {
-    if (this.params.drag) {
-      this.monitor.event = e
-      const { dragCoord } = this.context
-      const prePosition = this.prePosition
-      // 避免重复执行dragOver
-      if (
-        prePosition.x !== dragCoord.x ||
-        prePosition.y !== dragCoord.y
-      ) {
-        prePosition.x = dragCoord.x
-        prePosition.y = dragCoord.y
-        this.params.drag?.(this.monitor)
-      }
+    this.monitor.event = e
+    const { context: ctx, prePosition } = this
+    const { dragCoord } = ctx
+    // 避免重复执行drag
+    if (
+      prePosition.x !== dragCoord.x ||
+      prePosition.y !== dragCoord.y
+    ) {
+      prePosition.x = dragCoord.x
+      prePosition.y = dragCoord.y
+      this._execListen('drag', ctx)
+      this.params?.drag?.(this.monitor, ctx)
     }
   }
 
@@ -190,13 +191,12 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     this._isEnd = true
     monitor.event = e
     // 还原pointer-events
-    const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
-    let child: HTMLElement
-    for (child of childNodes) {
-      child['style']['pointerEvents'] = 'auto'
-    }
+    Array.from(this.dragDom.children).forEach(child => {
+      child?.['style']?.setProperty('pointerEvents', 'auto')
+    })
+    this._execListen('dragEnd', ctx)
     // 调用状态变化回调
-    params.dragEnd && params.dragEnd(monitor)
+    params?.dragEnd?.(monitor, ctx)
     let itemDragEnd: () => void
     // 执行所有dndCtx的dragItems中的函数
     for (itemDragEnd of ctx._dragItemDragEnds) itemDragEnd()
@@ -207,6 +207,8 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     this._editClass('remove', 'dragging')
     // 清除拖拽实例
     setTimeout(() => ctx.dragInstance = null)
+    // 清除监听过程函数
+    ctx._dragListen._ing = null!
   }
 
   /** 清空内存占用，避免内存泄露 */

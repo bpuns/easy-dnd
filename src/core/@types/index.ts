@@ -9,6 +9,8 @@ enum DND_MODE {
   SWARAJ = 'swaraj'
 }
 
+type ListenQueue<Data, Rubbish> = Omit<IListenDragParams<Data, Rubbish>, 'context'> & { unbind: () => void }
+
 /** 存储拖拽作用域下的所有数据 */
 interface IDnDProvider<Data, Rubbish> {
   /** 拖拽格式 */
@@ -48,22 +50,29 @@ interface IDnDProvider<Data, Rubbish> {
   /** 存储拖拽监听 */
   _dragListen: {
     /** 存储拖拽中的要触发的dragging */
-    _ing: ((ctx: IDnDProvider<Data, Rubbish>) => void)[]
+    _ing: ListenQueue<Data, Rubbish>[]
     /** 存储绑定的监听拖拽函数 */
-    _queue: (
-      Omit<IListenDragParams<Data, Rubbish>, 'context'> & { unbind: () => void }
-    )[]
+    _queue: ListenQueue<Data, Rubbish>[]
   }
 }
 
 /** Drag 构造函数参数 */
 interface IDragCoreConstructorParams<Data, Rubbish> {
   /** 拖动开始触发的方法 */
-  dragStart?: (monitor: IDragCoreMonitor<Data, Rubbish>) => any
+  dragStart?: (
+    monitor: IDragCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 拖动中触发的方法 */
-  drag?: (monitor: IDragCoreMonitor<Data, Rubbish>) => any
+  drag?: (
+    monitor: IDragCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 拖动结束触发的方法 */
-  dragEnd?: (monitor: IDragCoreMonitor<Data, Rubbish>) => any
+  dragEnd?: (
+    monitor: IDragCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 配置 */
   config: {
     /** 当前拖拽元素的类型 */
@@ -95,17 +104,35 @@ interface IDragCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbis
 /** Drop 构造函数参数 */
 interface IDropCoreConstructorParams<Data, Rubbish> {
   /** 外部元素进入this元素触发的方法 */
-  dragEnter?: (monitor: IDropCoreMonitor<Data, Rubbish>) => any
+  dragEnter?: (
+    monitor: IDropCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 外部元素在this元素中移动触发的方法 */
-  dragOver?: (monitor: IDropCoreMonitor<Data, Rubbish>) => any
+  dragOver?: (
+    monitor: IDropCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 外部元素离开this元素触发的方法 */
-  dragLeave?: (monitor: IDropCoreMonitor<Data, Rubbish>) => any
+  dragLeave?: (
+    monitor: IDropCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 外部元素放置到this元素触发的方法 */
-  drop?: (monitor: IDropCoreMonitor<Data, Rubbish>) => any
+  drop?: (
+    monitor: IDropCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** acceptType里允许接收的元素开始拖拽的时候，会触发此方法 */
-  dragStart?: (monitor: IDropCoreMonitor<Data, Rubbish>) => any
+  dragStart?: (
+    monitor: IDropCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** acceptType里允许接收的元素结束拖拽的时候，会触发此方法 */
-  dragEnd?: (monitor: IDropCoreMonitor<Data, Rubbish>) => any
+  dragEnd?: (
+    monitor: IDropCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 配置 */
   config: {
     /**
@@ -190,13 +217,22 @@ abstract class DragDropBase<Data, Rubbish> {
   /** 拖拽上下文 */
   context!: IDnDProvider<Data, Rubbish>
 
+  /**
+   * 执行监听函数
+   * @param execName  监听函数名称
+   */
+  _execListen = (execName: keyof ListenQueue<Data, Rubbish>, ctx: IDnDProvider<Data, Rubbish>) => {
+    // @ts-ignore monitor一定是正确的
+    ctx._dragListen._ing.forEach(t => t?.[execName]?.(this.monitor, ctx))
+  }
+
   /** 注册dom */
   abstract registerDom: (dom: HTMLElement) => any
   /** 绑定事件 */
   abstract subscribe: () => void
   /** 取消绑定事件 */
   abstract unSubscribe: () => void
-  
+
 }
 
 /** 把context取出、来，hooks中不需要加入context */
