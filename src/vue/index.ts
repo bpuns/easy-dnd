@@ -7,14 +7,16 @@ import {
 } from 'vue'
 import {
   type IDnDProvider,
-  type IDragCoreConstructorParams,
-  type IDropCoreConstructorParams,
   type IDragHooksParams,
   type IDropHooksParams,
+  type IListenDragHooksParams,
+  type IDragCoreConstructorParams,
+  type IDropCoreConstructorParams,
   DND_CTX,
   DND_MODE,
   DragCore,
   DropCore,
+  onListenDrag,
   createProvider
 } from 'easy-dnd'
 
@@ -66,13 +68,8 @@ function useDrag<Data = {}, Rubbish = {}>(params: IDragHooksParams<Data, Rubbish
     params as IDragCoreConstructorParams<Data, Rubbish>
   )
 
-  onMounted(() => {
-    drag.subscribe()
-  })
-
-  onBeforeUnmount(() => {
-    drag.unSubscribe()
-  })
+  onMounted(drag.subscribe)
+  onBeforeUnmount(drag.unSubscribe)
 
   return drag
 
@@ -86,15 +83,21 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>) {
     params as IDropCoreConstructorParams<Data, Rubbish>
   )
 
-  onMounted(() => {
-    drop.subscribe()
-  })
-
-  onBeforeUnmount(() => {
-    drop.unSubscribe()
-  })
+  onMounted(drop.subscribe)
+  onBeforeUnmount(drop.unSubscribe)
 
   return drop
+
+}
+
+function useDragListen<Data, Rubbish>(params: IListenDragHooksParams<Data, Rubbish>) {
+
+  params['context'] = inject<IDnDProvider<Data, Rubbish>>(DND_CTX)
+
+  // @ts-ignore 自动注入上下文
+  const unbind = onListenDrag(params)
+
+  onBeforeUnmount(unbind)
 
 }
 
@@ -105,5 +108,6 @@ export {
   Drop,
   useDrag,
   useDrop,
-  DndProvider
+  DndProvider,
+  useDragListen
 }

@@ -46,7 +46,6 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
     x: 0,
     y: 0
   })
-  // TIP: 
   const unbind = bindGetContextCoords(dragCoord)
   const ctx: IDnDProvider<Data, Rubbish> = {
     dndMode,
