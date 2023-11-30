@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineExpose } from 'vue'
 import { useDrop } from 'easy-dnd/vue'
 
 const drop = useDrop({
