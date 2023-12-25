@@ -95,7 +95,7 @@ export function onListenDrag<Data, Rubbish>({ context, filter = () => true, ...e
     unbind: () => spliceItem(queue, queueItem)
   }
   queue.push(queueItem)
-  return queueItem.unbind
+  return queueItem
 }
 
 /**

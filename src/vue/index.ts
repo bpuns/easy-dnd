@@ -95,9 +95,9 @@ function useDragListen<Data, Rubbish>(params: IListenDragHooksParams<Data, Rubbi
   params['context'] = inject<IDnDProvider<Data, Rubbish>>(DND_CTX)
 
   // @ts-ignore 自动注入上下文
-  const unbind = onListenDrag(params)
+  const queueItem = onListenDrag(params)
 
-  onBeforeUnmount(unbind)
+  onBeforeUnmount(queueItem.unbind)
 
 }
 

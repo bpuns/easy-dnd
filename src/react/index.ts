@@ -10,12 +10,14 @@ import {
 } from 'react'
 import {
   type IDnDProvider,
-  type IDragCoreConstructorParams,
-  type IDropCoreConstructorParams,
   type IDragHooksParams,
   type IDropHooksParams,
+  type IListenDragHooksParams,
+  type IDragCoreConstructorParams,
+  type IDropCoreConstructorParams,
   DragCore,
   DropCore,
+  onListenDrag,
   createProvider
 } from 'easy-dnd'
 
@@ -173,6 +175,29 @@ function useDrop<Data = {}, Rubbish = {}>(
 
 }
 
+function useDragListen<Data, Rubbish>(params: () => IListenDragHooksParams<Data, Rubbish>, deep: any[] = _deep) {
+
+  const first = useRef(true)
+  const context = useContext(DndContext)
+
+  const queueItem = useMemo(() => onListenDrag<Data, Rubbish>({ ...params(), context }), [])
+
+  useLayoutEffect(() => queueItem.unbind, [])
+
+  // 解决闭包问题
+  useEffect(() => {
+    if (first.current) {
+      first.current = false
+    } else {
+      const events = params()
+      Object.keys(events).forEach(key => {
+        queueItem[key] = events[key]
+      })
+    }
+  }, deep)
+
+}
+
 export * from 'easy-dnd'
 
 export {
@@ -180,5 +205,6 @@ export {
   Drop,
   useDrag,
   useDrop,
-  DndProvider
+  DndProvider,
+  useDragListen
 }
