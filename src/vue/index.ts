@@ -7,6 +7,7 @@ import {
 } from 'vue'
 import {
   type IDnDProvider,
+  type IListenDragHooksParams,
   type IDragCoreConstructorParams,
   type IDropCoreConstructorParams,
   type IDragHooksParams,
@@ -15,6 +16,7 @@ import {
   DND_MODE,
   DragCore,
   DropCore,
+  onListenDrag,
   createProvider
 } from 'easy-dnd'
 
@@ -98,6 +100,14 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>) {
 
 }
 
+function useDragListen<Data, Rubbish>(params: IListenDragHooksParams<Data, Rubbish>) {
+  // @ts-ignore 被我手动筛选掉，实际上有context
+  params.context = inject<IDnDProvider<Data, Rubbish>>(DND_CTX)
+  // @ts-ignore 一定有
+  const instance = onListenDrag(params)
+  onBeforeUnmount(instance.unbind)
+}
+
 export * from 'easy-dnd'
 
 export {
@@ -105,5 +115,6 @@ export {
   Drop,
   useDrag,
   useDrop,
-  DndProvider
+  DndProvider,
+  useDragListen
 }

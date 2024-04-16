@@ -254,6 +254,9 @@ type IListenDragParams<Data, Rubbish> = {
   & Pick<IDragCoreConstructorParams<Data, Rubbish>, 'dragStart' | 'drag' | 'dragEnd'>
   & Pick<IDropCoreConstructorParams<Data, Rubbish>, 'dragEnter' | 'dragOver' | 'dragLeave' | 'drop'>
 
+/** 监听hooks构子 */
+type IListenDragHooksParams<Data, Rubbish> = Omit<IListenDragParams<Data, Rubbish>, 'context'>;
+
 export {
   DND_MODE,
   DragDropBase
@@ -266,6 +269,7 @@ export type {
   IDragHooksParams,
   IDropHooksParams,
   IListenDragParams,
+  IListenDragHooksParams,
   IDragCoreConstructorParams,
   IDropCoreConstructorParams
 }
