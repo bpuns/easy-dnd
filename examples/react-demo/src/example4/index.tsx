@@ -12,16 +12,16 @@ function Example4() {
   return (
     <div className={s.drag}>
       <GridOrderList
-        
+
         // 获取用于渲染子项的key
         // ！！！！！！！！！！！！！一定要确保key唯一，不然可能会碰到不可预料的bug！！！！！！！！！！
         // 不能使用索引！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        getKey={useCallback(item => item, [])}
+        getKey={useCallback<(item: string) => string>(item => item, [])}
         // getKey={useCallback((item: { id: string }) => item.id, [])}
 
         orderList={list}
         onChange={setList}
-        render={({ dropRef, dragRef, item, index }) => {
+        render={({ dropRef, dragRef, item }) => {
           const dragDropRef = dropRef(dragRef)
           return (
             <div

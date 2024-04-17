@@ -13,7 +13,7 @@ function Example2() {
 
 function A() {
 
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLInputElement>(null!)
 
   const dragInstance = useDrag(() => ({
     config: {
@@ -40,9 +40,9 @@ function A() {
 
 function B() {
 
-  const [ child, setChild ] = useState('1')
+  const [ child, setChild ] = useState<string>('1')
 
-  const dropInstance = useDrop(() => ({
+  const dropInstance = useDrop<string>(() => ({
     config: {
       acceptType: new Set([ 'A' ]),
       canDrop(monitor) {
@@ -64,7 +64,7 @@ function B() {
     }
   }), [ child ])
 
-  const removeChild = useCallback(() => setChild(null), [])
+  const removeChild = useCallback(() => setChild(null!), [])
 
   return (
     <div

@@ -8,7 +8,6 @@
     "buildEsModule": "node ./scripts/build.mjs es",
     "buildReleases": "node ./scripts/build.mjs releases",
     "start:reactDemo": "npm --workspace react-demo start",
-    "start:react18Demo": "npm --workspace react18-demo start",
     "start:vueDemo": "npm --workspace vue-demo start"
   },
   "workspaces": [
@@ -34,8 +33,8 @@
     "@vitejs/plugin-vue": "^4.3.4",
     "eslint": "7.20.0",
     "fs-extra": "^11.1.1",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "rollup": "2.79.1",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-replace-imports": "^1.0.0",
