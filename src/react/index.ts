@@ -1,9 +1,8 @@
 import {
   useRef,
-  useMemo,
   useEffect,
-  createElement,
   useContext,
+  createElement,
   createContext,
   useLayoutEffect
 } from 'react'
@@ -20,6 +19,9 @@ import {
 
 /** dnd上下文 */
 const DndContext = createContext<IDnDProvider<any, any>>(null!)
+
+/** 判断值是否为空 */
+export const isNull = (v: any) => v.current === null
 
 interface IDndProviderProps {
   /** 拖拽类型 */
@@ -91,15 +93,19 @@ function useDrag<Data = {}, Rubbish = {}>(
   const context = useContext(DndContext)
   const dragDom = useRef<HTMLElement>(null!)
 
-  const dragInstance = useMemo(() => {
+  const _dragInstance = useRef<Drag<Data, Rubbish>>(null!)
+
+  // 解决在Suspense中，useMemo会重复调用的问题
+  if (isNull(_dragInstance)) {
     // 手动注入context
     const params = operate()
     params.config['context'] = context
-    return new Drag(params as IDragCoreConstructorParams<Data, Rubbish>)
-  }, [])
+    _dragInstance.current = new Drag(params as IDragCoreConstructorParams<Data, Rubbish>)
+  }
 
   // 解决闭包问题
   useEffect(() => {
+    const dragInstance = _dragInstance.current
     if (dragInstance.hooksFirst) {
       dragInstance.hooksFirst = false
     } else {
@@ -113,6 +119,7 @@ function useDrag<Data = {}, Rubbish = {}>(
   }, deep)
 
   useLayoutEffect(() => {
+    const dragInstance = _dragInstance.current
     if (dragInstance.dragDom === null) {
       dragInstance.dragDom = dragDom.current
     }
@@ -121,7 +128,7 @@ function useDrag<Data = {}, Rubbish = {}>(
     return () => dragInstance.unSubscribe()
   }, [])
 
-  return dragInstance
+  return _dragInstance.current
 
 }
 
@@ -134,16 +141,19 @@ function useDrop<Data = {}, Rubbish = {}>(
 
   const context = useContext(DndContext)
   const dropDom = useRef<HTMLElement>(null!)
+  const _dropInstance = useRef<Drop<Data, Rubbish>>(null!)
 
-  const dropInstance = useMemo<Drop<Data, Rubbish>>(() => {
+  // 解决在Suspense中，useMemo会重复调用的问题
+  if (isNull(_dropInstance)) {
     // 手动注入context
     const params = operate()
     params.config['context'] = context
-    return new Drop(params as IDropCoreConstructorParams<Data, Rubbish>)
-  }, [])
+    _dropInstance.current = new Drop(params as IDropCoreConstructorParams<Data, Rubbish>)
+  }
 
   // 解决闭包问题
   useEffect(() => {
+    const dropInstance = _dropInstance.current
     if (dropInstance.hooksFirst) {
       dropInstance.hooksFirst = false
     } else {
@@ -157,6 +167,7 @@ function useDrop<Data = {}, Rubbish = {}>(
   }, deep)
 
   useLayoutEffect(() => {
+    const dropInstance = _dropInstance.current
     if (dropInstance.dropDom === null) {
       dropInstance.dropDom = dropDom.current
     }
@@ -165,7 +176,7 @@ function useDrop<Data = {}, Rubbish = {}>(
     return () => dropInstance.unSubscribe()
   }, [])
 
-  return dropInstance
+  return _dropInstance.current
 
 }
 
