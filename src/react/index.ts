@@ -8,12 +8,14 @@ import {
 } from 'react'
 import {
   type IDnDProvider,
+  type IListenDragHooksParams,
   type IDragCoreConstructorParams,
   type IDropCoreConstructorParams,
   type IDragHooksParams,
   type IDropHooksParams,
   DragCore,
   DropCore,
+  onListenDrag,
   createProvider
 } from 'easy-dnd'
 
@@ -21,7 +23,7 @@ import {
 const DndContext = createContext<IDnDProvider<any, any>>(null!)
 
 /** 判断值是否为空 */
-export const isNull = (v: any) => v.current === null
+export const isNull = (v: ReturnType<typeof useRef>) => v.current === null
 
 interface IDndProviderProps {
   /** 拖拽类型 */
@@ -180,6 +182,47 @@ function useDrop<Data = {}, Rubbish = {}>(
 
 }
 
+const listenEvent = [ ...dropEvent, dragEvent[2], 'filter' ]
+
+function useDragListen<Data = {}, Rubbish = {}>(
+  operate: () => IListenDragHooksParams<Data, Rubbish>,
+  deep: any[] = _deep
+) {
+
+  const context = useContext(DndContext)
+  const _listenInstance = useRef<ReturnType<typeof onListenDrag>>(null!)
+
+  // 解决闭包问题
+  useEffect(() => {
+    // 第一次创建
+    if (isNull(_listenInstance)) {
+      // 手动注入context
+      const params = operate()
+      // @ts-ignore 手动筛选掉，实际上有context
+      params.context = context
+      // @ts-ignore 一定有context
+      _listenInstance.current = onListenDrag(params)
+    }
+    // 依赖发生变化
+    else {
+      const listenInstance = _listenInstance.current
+      const currentOperate = operate()
+      for (let event of listenEvent) {
+        listenInstance[event] && (listenInstance[event] = currentOperate[event])
+      }
+    }
+  }, deep)
+
+  useEffect(() => {
+    const listenInstance = _listenInstance.current
+    return () => {
+      _listenInstance.current = null!
+      listenInstance.unbind()
+    }
+  }, [])
+
+}
+
 export * from 'easy-dnd'
 
 export {
@@ -187,5 +230,6 @@ export {
   Drop,
   useDrag,
   useDrop,
-  DndProvider
+  DndProvider,
+  useDragListen
 }

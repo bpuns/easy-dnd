@@ -5,6 +5,7 @@ import { Example2 } from './example2'
 import { Example3 } from './example3'
 import { Example4 } from './example4'
 import { Example5 } from './example5'
+import { Example6 } from './example6'
 import './init.css'
 
 const STORAGE_KEY = 'react-demo-select-index'
@@ -16,7 +17,8 @@ function App() {
     Example2,
     Example3,
     Example4,
-    Example5
+    Example5,
+    Example6
   ])
 
   const [ select, setSelect ] = useState(() => {
@@ -50,7 +52,7 @@ function App() {
   )
 }
 
-createRoot(document.querySelector('#root')).render(
+createRoot(document.querySelector('#root')!).render(
   <StrictMode>
     <App />
   </StrictMode>

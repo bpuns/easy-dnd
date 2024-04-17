@@ -1,5 +1,5 @@
 <template>
-  <div class="target" :ref="drop.dropRef"></div>
+  <div class="example6-dropItem" :ref="drop.dropRef"></div>
 </template>
 
 <script setup lang="ts">
@@ -18,7 +18,7 @@ defineExpose({
 </script>
 
 <style>
-.target {
+.example6-dropItem {
   width: 200px;
   height: 200px;
   box-sizing: border-box;

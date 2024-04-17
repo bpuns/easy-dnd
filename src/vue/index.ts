@@ -101,7 +101,7 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>) {
 }
 
 function useDragListen<Data, Rubbish>(params: IListenDragHooksParams<Data, Rubbish>) {
-  // @ts-ignore 被我手动筛选掉，实际上有context
+  // @ts-ignore 手动筛选掉，实际上有context
   params.context = inject<IDnDProvider<Data, Rubbish>>(DND_CTX)
   // @ts-ignore 一定有context
   const instance = onListenDrag(params)

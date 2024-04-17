@@ -2,11 +2,11 @@
   <button @click="listen = !listen">
     {{ listen ? "关闭自定义layer" : "开启自定义layer" }}
   </button>
-  <div class="container">
+  <div class="example6-container">
     <A></A>
     <B ref="targetDomRef"></B>
   </div>
-  <div class="layer" ref="layerDom"></div>
+  <div class="example6-layer" ref="layerDom"></div>
 </template>
 
 <script setup lang="ts">
@@ -134,44 +134,44 @@ useDragListen({
     // 设置克隆dom的初始化设置
     cloneDragDom.style.transform = `translate(${startRect.x}px, ${startRect.y}px)`;
 
-    dragDom.classList.add("hide");
+    dragDom.classList.add("example6-hide");
   },
   drag(_, { dragCoord }) {
     setTransformStr(dragCoord);
   },
   dragEnd() {
-    cloneDragDom.classList.add("reset-animation");
+    cloneDragDom.classList.add("example6-reset-animation");
     cloneDragDom.style.transform = `translate(${startRect.x}px, ${startRect.y}px)`;
     cloneDragDom.ontransitionend = () => {
       // 还原样式
       layerDom.value!.innerHTML = "";
-      dragDom.classList.remove("hide");
+      dragDom.classList.remove("example6-hide");
     };
   },
 });
 </script>
 
 <style>
-.container {
+.example6-container {
   height: 300px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.layer {
+.example6-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
 }
 
 /* 隐藏拖拽节点 */
-.hide {
+.example6-hide {
   opacity: 0;
 }
 
 /* 动画效果 */
-.reset-animation {
+.example6-reset-animation {
   transition: 0.3s all;
 }
 </style>
