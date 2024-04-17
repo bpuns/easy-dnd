@@ -5,7 +5,6 @@ import {
   createElement,
   useContext,
   createContext,
-  PureComponent,
   useLayoutEffect
 } from 'react'
 import {
@@ -31,27 +30,24 @@ interface IDndProviderProps {
   children: any
 }
 
-class DndProvider extends PureComponent<IDndProviderProps> {
+function DndProvider(props: IDndProviderProps) {
 
   /** 每个Dnd下都有属于自己的上下文, 里面可以存储一些基本的拖拽数据 */
-  dndCtx!: IDnDProvider<any, any>
+  const dndCtx = useRef<IDnDProvider<any, any>>()
 
-  constructor(props: IDndProviderProps) {
-    super(props)
-    this.dndCtx = createProvider(props)
+  if (!dndCtx.current) {
+    dndCtx.current = createProvider(props)
   }
 
-  render() {
-    return (
-      createElement(
-        DndContext.Provider,
-        {
-          value:    this.dndCtx,
-          children: this.props.children
-        }
-      )
-    )
-  }
+  return (
+    createElement(
+      DndContext.Provider,
+      {
+        value:    dndCtx.current,
+        children: props.children
+      }
+    ) as unknown as JSX.Element
+  )
 
 }
 
