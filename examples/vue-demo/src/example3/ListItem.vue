@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import { useDrag, useDrop } from 'easy-dnd/vue'
 
 const emits = defineEmits<{

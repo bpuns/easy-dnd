@@ -1,18 +1,12 @@
 {
   "name": "easy-dnd",
-  "version": "1.1.0-alpha1",
+  "version": "1.1.0-alpha2",
   "scripts": {
     "dev": "node ./scripts/index.mjs dev",
     "build": "node ./scripts/index.mjs build",
-    "doc": "npm --workspace doc start",
-    "buildDoc": "npm --workspace doc run build",
-    "react": "npm --workspace react-demo start",
-    "vue": "npm --workspace vue-demo start"
+    "react": "pnpm -F react-demo run start",
+    "vue": "pnpm -F vue-demo run start"
   },
-  "workspaces": [
-    "examples/*",
-    "./docs"
-  ],
   "keywords": [
     "vue",
     "react",
@@ -27,20 +21,12 @@
   "author": "bpuns",
   "repository": "https://github.com/bpuns/easy-dnd.git",
   "devDependencies": {
-    "@types/react": "17.0.2",
-    "@typescript-eslint/parser": "4.15.2",
-    "@vitejs/plugin-vue": "^4.3.4",
-    "esbuild": "^0.20.2",
-    "esbuild-plugin-d.ts": "^1.2.3",
-    "esbuild-plugin-external-global": "^1.0.1",
-    "eslint": "7.20.0",
-    "fs-extra": "^11.1.1",
+    "@typescript-eslint/parser": "7.7.0",
+    "esbuild": "0.20.2",
+    "esbuild-plugin-d.ts": "1.2.3",
+    "eslint": "8.56.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "ts-transform-paths": "^3.0.0",
-    "tslib": "2.4.0",
-    "typescript": "5.0.4",
-    "vite": "^4.4.9",
-    "vue": "^3.3.4"
+    "typescript": "5.4.5",
+    "vue": "3.4.23"
   }
 }
