@@ -6,8 +6,8 @@
     "build": "node ./scripts/index.mjs build",
     "doc": "npm --workspace doc start",
     "buildDoc": "npm --workspace doc run build",
-    "start:reactDemo": "npm --workspace react-demo start",
-    "start:vueDemo": "npm --workspace vue-demo start"
+    "react": "npm --workspace react-demo start",
+    "vue": "npm --workspace vue-demo start"
   },
   "workspaces": [
     "examples/*",
