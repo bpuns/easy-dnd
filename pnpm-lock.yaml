@@ -44,6 +44,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: 4.2.1
         version: 4.2.1(vite@5.2.9)
+      easy-dnd:
+        specifier: file:../../build
+        version: file:build
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1969,5 +1972,5 @@ packages:
 
   file:build:
     resolution: {directory: build, type: directory}
-    name: build
+    name: easy-dnd
     dev: false

@@ -48,15 +48,18 @@
   const context = createProvider()
 
   // 监听拖拽
-  let unbind = onListenDrag({
+  let dragListen = onListenDrag({
     context,
-    filter: () => listen,
+    filter: (ctx) => {
+      console.log('当前拖拽上下文', ctx)
+      return listen
+    },
     dragStart(monitor) {
       // console.log(monitor.getContext)
       console.log('dragStart')
     },
     drag() {
-      // console.log('drag')
+      console.log('drag')
     },
     dragEnd() {
       console.log('dragEnd')
@@ -82,9 +85,9 @@
   }
 
   document.querySelector('#unbind').onclick = function () {
-    if (unbind) {
-      unbind?.()
-      unbind = null
+    if (dragListen) {
+      dragListen.unbind()
+      dragListen = null
       document.querySelector('#shut').remove()
       this.remove()
     }

@@ -98,3 +98,20 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>): Drop<D
 - 参考
 
 [React下使用 > hooks > useDrop](/react.md#usedrop) 
+
+## useDragListen<Badge text="1.1.0+" vertical="top" />
+
+监听全局拖拽
+
+```ts
+type IListenDragHooksParams<Data, Rubbish> = Omit<IListenDragParams<Data, Rubbish>, 'context'>;
+
+function useDragListen<Data = {}, Rubbish = {}>(
+  operate: () => IListenDragHooksParams<Data, Rubbish>,
+  deep?: any[]
+): void;
+```
+
+- 参考
+
+[React下使用 > hooks > useDragListen](/react.md#useDragListen) 

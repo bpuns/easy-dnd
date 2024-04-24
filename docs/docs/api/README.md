@@ -291,3 +291,30 @@ interface IDropCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbis
  * @returns
  */
 function isElement(dom: unknown): dom is HTMLElement;
+```
+
+
+
+### onListenDrag <Badge text="1.1.0+" vertical="top" />
+
+拖拽监听事件
+
+- 类型
+
+```ts
+/** 监听拖拽参数 */
+type IListenDragParams<Data, Rubbish> = {
+    /** 拖拽上下文 */
+    context: IDnDProvider<Data, Rubbish>;
+    /** 此次拖拽是否需要监听 */
+    filter?: (ctx: IDnDProvider<Data, Rubbish>) => void;
+} & Pick<IDragCoreConstructorParams<Data, Rubbish>, 'dragStart' | 'drag' | 'dragEnd'> & Pick<IDropCoreConstructorParams<Data, Rubbish>, 'dragEnter' | 'dragOver' | 'dragLeave' | 'drop'>;
+
+function onListenDrag<Data, Rubbish>(params: IListenDragParams<Data, Rubbish>): Omit<IListenDragParams<Data, Rubbish>, "context"> & {
+    unbind: () => void;
+};
+```
+
+- 指南
+
+[进阶 >  拖拽全局监听方法](/extras.md#拖拽全局监听方法)

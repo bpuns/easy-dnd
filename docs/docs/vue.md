@@ -119,7 +119,6 @@ const drag = useDrag({
 </template>
 
 <script setup lang="ts">
-
 import { useDrop } from 'easy-dnd/vue'
 
 const drop = useDrop({
@@ -144,6 +143,32 @@ const drop = useDrop({
 
 </script>
 ```
+
+
+
+### useDragListen <Badge text="1.1.0+" vertical="top" />
+
+实现全局拖拽监听
+
+```jsx
+import { ref } from 'vue'
+import { useDragListen } from "easy-dnd/vue";
+
+const listen = ref(true)
+
+useDragListen({
+  filter: () => listen.value,
+  dragStart(_, context) {},
+  drag(_, { dragCoord }) {},
+  dragEnd() {}
+})
+```
+
+你可以借助这个api实现拖拽layer的功能
+
+<center>
+    <img src="./images/useDragListen.gif" style="zoom:50%;" />
+</center>
 
 ## 既可以drag又可以drop
 
