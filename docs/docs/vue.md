@@ -164,12 +164,11 @@ useDragListen({
 })
 ```
 
-你可以借助这个api实现拖拽layer的功能
+你可以借助这个api实现拖拽layer的功能（<a target="_blank" href="https://github.com/bpuns/easy-dnd/blob/v1.1.0/examples/vue-demo/src/example6/Layer.vue">代码示例</a>）
 
 <center>
     <img src="./images/useDragListen.gif" style="zoom:50%;" />
 </center>
-
 ## 既可以drag又可以drop
 
 如果当前元素既可以drag又可以drop，你可以这么写
