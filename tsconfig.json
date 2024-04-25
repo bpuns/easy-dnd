@@ -22,8 +22,8 @@
     "esModuleInterop": true,
     "declaration": true,
     "noFallthroughCasesInSwitch": true,
-    "noEmit": true,
     "baseUrl": "./",
+    "declarationDir": "./build",
     "paths": {
       "easy-dnd": [
         "src/index",

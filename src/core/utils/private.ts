@@ -27,8 +27,10 @@ let unbindGetContextCoords: () => void
 export function bindGetContextCoords(dragCoord: DragCoord) {
   if (!unbindGetContextCoords) {
     const dragOver = (e: DragEvent) => {
-      dragCoord.x = e.clientX
-      dragCoord.y = e.clientY
+      dragCoords.forEach(dragCoord=>{
+        dragCoord.x = e.clientX
+        dragCoord.y = e.clientY
+      })
     }
     const html = document.documentElement
     html.addEventListener('dragover', dragOver, true)

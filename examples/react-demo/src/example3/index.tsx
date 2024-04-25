@@ -14,13 +14,13 @@ function List() {
 
   const [ list, setList ] = useState([ 'a', 'b', 'c', 'd', 'e', 'f' ])
 
-  const onDragEnd = (fromIndex, toIndex, isTop) => {
+  const onDragEnd: ItemProps['onDragEnd'] = (fromIndex, toIndex, isTop) => {
     // 有两种情况不需要调换位置
     // 向上拖拽，并且toIndex就在fromIndex的上面
     if (isTop && fromIndex === toIndex - 1) return
     // 向下拖拽，并且toIndex就在fromIndex的下面
     if (!isTop && fromIndex === toIndex + 1) return
-    
+
     const newList = [ ...list ]
     const removeItem = newList.splice(fromIndex, 1)
     newList.splice(toIndex, 0, removeItem[0])
@@ -45,7 +45,13 @@ function List() {
 
 }
 
-function Item({ value, index, onDragEnd }) {
+interface ItemProps {
+  value: string,
+  index: number,
+  onDragEnd: (fromIndex: number, toIndex: number, isTop: boolean) => void
+}
+
+function Item({ value, index, onDragEnd }: ItemProps) {
 
   const dragInstance = useDrag(() => ({
     config: {
@@ -58,7 +64,7 @@ function Item({ value, index, onDragEnd }) {
     }
   }), [ index ])
 
-  const dropInstance = useDrop(() => ({
+  const dropInstance = useDrop<number>(() => ({
     config: {
       acceptType: new Set([ 'list' ])
     },
@@ -86,8 +92,8 @@ function Item({ value, index, onDragEnd }) {
       )
       // 修改数据
       onDragEnd(monitor.getDragData(), index, isTop)
-      // 去除样式
-      this.dragLeave && this.dragLeave(monitor)
+      // @ts-ignore dragLeave一定用不到任何参数
+      this.dragLeave && this.dragLeave()
     }
   }), [ index, onDragEnd ])
 

@@ -402,7 +402,7 @@ new DropCore({
 
 ### DragMonitor
 
-`drag`相关事件回调的事件对象，具体的类型定义看这里 [ 核心API > createDragMonitor ](/api/#createdragmonitor) ，可以从中获取到当前拖拽上下文和dom事件的event 对象
+`drag`相关事件回调的事件对象，具体的类型定义看这里 [ 核心API > createDragMonitor ](/easy-dnd-docs/api/#createdragmonitor) ，可以从中获取到当前拖拽上下文和dom事件的event 对象
 
 ```ts
 const drop = new DropCore({
@@ -416,7 +416,7 @@ const drop = new DropCore({
 
 ### DropMonitor
 
-`drop`相关事件回调的事件对象，具体的类型定义看这里 [ 核心API > createDropMonitor ](/api/#createdropmonitor) ，接下来来介绍下这个事件对象上几个很好用的方法
+`drop`相关事件回调的事件对象，具体的类型定义看这里 [ 核心API > createDropMonitor ](/easy-dnd-docs/api/#createdropmonitor) ，接下来来介绍下这个事件对象上几个很好用的方法
 
 比如想要知道当前拖拽元素是否在放置元素的上 50% ，可以这么写
 
@@ -601,6 +601,60 @@ new DragCore({
   .registerDom(dragDropDom)
   .subscribe()
 ```
+
+## 拖拽全局监听方法 <Badge text="1.1.0+" vertical="top" />
+
+在某些场景下，开发者想要监听当前页面中所有的拖拽事件，借此来做一些二次操作，`easy-dnd`允许你这么做，并提供了一个名为`onListenDrag`的api
+
+```js
+const context = createProvider()
+
+// 监听拖拽
+let dragListen = onListenDrag({
+  context,
+  dragStart(monitor) {
+    // console.log(monitor.getContext)
+    console.log('dragStart')
+  },
+  drag() {
+    console.log('drag')
+  },
+  dragEnd() {
+    console.log('dragEnd')
+  },
+  dragEnter() {
+    console.log('dragEnter')
+  },
+  dragOver() {
+    console.log('dragOver')
+  },
+  dragLeave() {
+    console.log('dragLeave')
+  },
+  drop() {
+    console.log('drop')
+  }
+})
+```
+
+有意思的是，开发者还可以决定此次拖拽事件是否需要监听，`onListenDrag`提供了一个filter方法，返回true表示接收此次的监听，反之同理（默认不传filter就是监听所有拖拽事件）
+
+```js{5-8}
+const context = createProvider()
+
+onListenDrag({
+  context,
+  filter: (ctx) => {
+    console.log('当前拖拽上下文', ctx)
+    return true
+  },
+  dragStart(monitor) {
+    console.log('dragStart')
+  }
+})
+```
+
+
 
 ## 卸载
 

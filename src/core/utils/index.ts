@@ -46,11 +46,12 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
     x: 0,
     y: 0
   })
+  // TIP: 
   const unbind = bindGetContextCoords(dragCoord)
-  const ctx: IDnDProvider<Data, Rubbish> = {
+  const ctx: Partial<IDnDProvider<Data, Rubbish>> = {
     dndMode,
     delay,
-    dragCoord,
+    // dragCoord,
     dropInstance: null,
     dragInstance: null,
     dragType:     null!,
@@ -77,7 +78,12 @@ export function createProvider<Data, Rubbish>({ dndMode = DND_MODE.SWARAJ, delay
       _queue: []
     }
   }
-  return ctx
+  Object.defineProperty(ctx, 'dragCoord', {
+    value:        dragCoord,
+    writable:     false,
+    configurable: false
+  })
+  return ctx as IDnDProvider<Data, Rubbish>
 }
 
 /**
@@ -137,6 +143,7 @@ export function createDropMonitor<Data, Rubbish>(instance: DropCore<Data, Rubbis
     getDomRect,
     isOverTop:  (domRect?: DOMRect, middleExists?: boolean) => {
       const { y, height } = domRect || getDomRect()
+      // console.log(getCtx().dragCoord)
       return getCtx().dragCoord.y < (y + height / (middleExists ? 3 : 2))
     },
     isOverBottom: (domRect?: DOMRect, middleExists?: boolean) => {

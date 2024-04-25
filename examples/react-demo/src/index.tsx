@@ -1,10 +1,11 @@
-import ReactDom from 'react-dom'
-import { useState, useEffect, createElement } from 'react'
+import { createRoot } from 'react-dom/client'
+import { StrictMode, useState, useEffect, createElement } from 'react'
 import { Example1 } from './example1'
 import { Example2 } from './example2'
 import { Example3 } from './example3'
 import { Example4 } from './example4'
 import { Example5 } from './example5'
+import { Example6 } from './example6'
 import './init.css'
 
 const STORAGE_KEY = 'react-demo-select-index'
@@ -16,7 +17,8 @@ function App() {
     Example2,
     Example3,
     Example4,
-    Example5
+    Example5,
+    Example6
   ])
 
   const [ select, setSelect ] = useState(() => {
@@ -50,4 +52,8 @@ function App() {
   )
 }
 
-ReactDom.render(<App />, document.querySelector('#root'))
+createRoot(document.querySelector('#root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+)

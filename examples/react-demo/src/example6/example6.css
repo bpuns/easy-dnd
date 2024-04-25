@@ -1,0 +1,38 @@
+.example6-container {
+  height         : 300px;
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+}
+
+.example6-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 隐藏拖拽节点 */
+.example6-hide {
+  opacity: 0;
+}
+
+/* 动画效果 */
+.example6-reset-animation {
+  transition: 0.3s all;
+}
+
+/** 拖拽的节点 */
+.example6-dragItem {
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+  border: 1px solid rgb(0, 0, 0);
+}
+
+/** 放置的节点 */
+.example6-dropItem {
+  width: 200px;
+  height: 200px;
+  box-sizing: border-box;
+  border: 1px dashed rgb(0, 0, 0);
+}
