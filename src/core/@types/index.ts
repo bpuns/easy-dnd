@@ -232,6 +232,7 @@ abstract class DragDropBase<Data, Rubbish> {
   abstract subscribe: () => void
   /** 取消绑定事件 */
   abstract unSubscribe: () => void
+
 }
 
 /** 把context取出、来，hooks中不需要加入context */
@@ -254,10 +255,7 @@ type IListenDragParams<Data, Rubbish> = {
   & Pick<IDropCoreConstructorParams<Data, Rubbish>, 'dragEnter' | 'dragOver' | 'dragLeave' | 'drop'>
 
 /** 监听hooks构子 */
-type IListenDragHooksParams<Data, Rubbish> = Omit<
-  IListenDragParams<Data, Rubbish>,
-  'context'
->
+type IListenDragHooksParams<Data, Rubbish> = Omit<IListenDragParams<Data, Rubbish>, 'context'>;
 
 export {
   DND_MODE,

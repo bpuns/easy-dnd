@@ -148,7 +148,6 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     ctx.dragData = config.data?.()
     // 存储拖拽实例
     ctx.dragInstance = this
-    // 存储指针位置
     ctx.dragCoord.x = e.clientX
     ctx.dragCoord.y = e.clientY
     // unSubscribe的时候要用

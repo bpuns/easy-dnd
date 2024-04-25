@@ -7,11 +7,11 @@ import {
 } from 'vue'
 import {
   type IDnDProvider,
-  type IDragHooksParams,
-  type IDropHooksParams,
   type IListenDragHooksParams,
   type IDragCoreConstructorParams,
   type IDropCoreConstructorParams,
+  type IDragHooksParams,
+  type IDropHooksParams,
   DND_CTX,
   DND_MODE,
   DragCore,
@@ -68,8 +68,13 @@ function useDrag<Data = {}, Rubbish = {}>(params: IDragHooksParams<Data, Rubbish
     params as IDragCoreConstructorParams<Data, Rubbish>
   )
 
-  onMounted(drag.subscribe)
-  onBeforeUnmount(drag.unSubscribe)
+  onMounted(() => {
+    drag.subscribe()
+  })
+
+  onBeforeUnmount(() => {
+    drag.unSubscribe()
+  })
 
   return drag
 
@@ -83,22 +88,24 @@ function useDrop<Data, Rubbish>(params: IDropHooksParams<Data, Rubbish>) {
     params as IDropCoreConstructorParams<Data, Rubbish>
   )
 
-  onMounted(drop.subscribe)
-  onBeforeUnmount(drop.unSubscribe)
+  onMounted(() => {
+    drop.subscribe()
+  })
+
+  onBeforeUnmount(() => {
+    drop.unSubscribe()
+  })
 
   return drop
 
 }
 
 function useDragListen<Data, Rubbish>(params: IListenDragHooksParams<Data, Rubbish>) {
-
-  params['context'] = inject<IDnDProvider<Data, Rubbish>>(DND_CTX)
-
-  // @ts-ignore 自动注入上下文
-  const queueItem = onListenDrag(params)
-
-  onBeforeUnmount(queueItem.unbind)
-
+  // @ts-ignore 手动筛选掉，实际上有context
+  params.context = inject<IDnDProvider<Data, Rubbish>>(DND_CTX)
+  // @ts-ignore 一定有context
+  const instance = onListenDrag(params)
+  onBeforeUnmount(instance.unbind)
 }
 
 export * from 'easy-dnd'

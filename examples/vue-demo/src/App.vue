@@ -32,7 +32,7 @@ const examples = [
   { component: Example3, tip: '拖拽排序' },
   { component: Example4, tip: '网格拖拽排序' },
   { component: Example5, tip: '开启/关闭拖拽' },
-  { component: Example6, tip: '拖拽层' },
+  { component: Example6, tip: '拖拽蒙版' },
 ]
   .map(t => ({
     ...t,

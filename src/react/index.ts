@@ -1,20 +1,18 @@
 import {
   useRef,
-  useMemo,
   useEffect,
-  createElement,
   useContext,
+  createElement,
   createContext,
-  PureComponent,
   useLayoutEffect
 } from 'react'
 import {
   type IDnDProvider,
-  type IDragHooksParams,
-  type IDropHooksParams,
   type IListenDragHooksParams,
   type IDragCoreConstructorParams,
   type IDropCoreConstructorParams,
+  type IDragHooksParams,
+  type IDropHooksParams,
   DragCore,
   DropCore,
   onListenDrag,
@@ -23,6 +21,9 @@ import {
 
 /** dnd上下文 */
 const DndContext = createContext<IDnDProvider<any, any>>(null!)
+
+/** 判断值是否为空 */
+export const isNull = (v: ReturnType<typeof useRef>) => v.current === null
 
 interface IDndProviderProps {
   /** 拖拽类型 */
@@ -33,27 +34,24 @@ interface IDndProviderProps {
   children: any
 }
 
-class DndProvider extends PureComponent<IDndProviderProps> {
+function DndProvider(props: IDndProviderProps) {
 
   /** 每个Dnd下都有属于自己的上下文, 里面可以存储一些基本的拖拽数据 */
-  dndCtx!: IDnDProvider<any, any>
+  const dndCtx = useRef<IDnDProvider<any, any>>()
 
-  constructor(props: IDndProviderProps) {
-    super(props)
-    this.dndCtx = createProvider(props)
+  if (!dndCtx.current) {
+    dndCtx.current = createProvider(props)
   }
 
-  render() {
-    return (
-      createElement(
-        DndContext.Provider,
-        {
-          value:    this.dndCtx,
-          children: this.props.children
-        }
-      )
-    )
-  }
+  return (
+    createElement(
+      DndContext.Provider,
+      {
+        value:    dndCtx.current,
+        children: props.children
+      }
+    ) as unknown as JSX.Element
+  )
 
 }
 
@@ -97,15 +95,19 @@ function useDrag<Data = {}, Rubbish = {}>(
   const context = useContext(DndContext)
   const dragDom = useRef<HTMLElement>(null!)
 
-  const dragInstance = useMemo(() => {
+  const _dragInstance = useRef<Drag<Data, Rubbish>>(null!)
+
+  // 解决在Suspense中，useMemo会重复调用的问题
+  if (isNull(_dragInstance)) {
     // 手动注入context
     const params = operate()
     params.config['context'] = context
-    return new Drag(params as IDragCoreConstructorParams<Data, Rubbish>)
-  }, [])
+    _dragInstance.current = new Drag(params as IDragCoreConstructorParams<Data, Rubbish>)
+  }
 
   // 解决闭包问题
   useEffect(() => {
+    const dragInstance = _dragInstance.current
     if (dragInstance.hooksFirst) {
       dragInstance.hooksFirst = false
     } else {
@@ -119,6 +121,7 @@ function useDrag<Data = {}, Rubbish = {}>(
   }, deep)
 
   useLayoutEffect(() => {
+    const dragInstance = _dragInstance.current
     if (dragInstance.dragDom === null) {
       dragInstance.dragDom = dragDom.current
     }
@@ -127,7 +130,7 @@ function useDrag<Data = {}, Rubbish = {}>(
     return () => dragInstance.unSubscribe()
   }, [])
 
-  return dragInstance
+  return _dragInstance.current
 
 }
 
@@ -140,16 +143,19 @@ function useDrop<Data = {}, Rubbish = {}>(
 
   const context = useContext(DndContext)
   const dropDom = useRef<HTMLElement>(null!)
+  const _dropInstance = useRef<Drop<Data, Rubbish>>(null!)
 
-  const dropInstance = useMemo<Drop<Data, Rubbish>>(() => {
+  // 解决在Suspense中，useMemo会重复调用的问题
+  if (isNull(_dropInstance)) {
     // 手动注入context
     const params = operate()
     params.config['context'] = context
-    return new Drop(params as IDropCoreConstructorParams<Data, Rubbish>)
-  }, [])
+    _dropInstance.current = new Drop(params as IDropCoreConstructorParams<Data, Rubbish>)
+  }
 
   // 解决闭包问题
   useEffect(() => {
+    const dropInstance = _dropInstance.current
     if (dropInstance.hooksFirst) {
       dropInstance.hooksFirst = false
     } else {
@@ -163,6 +169,7 @@ function useDrop<Data = {}, Rubbish = {}>(
   }, deep)
 
   useLayoutEffect(() => {
+    const dropInstance = _dropInstance.current
     if (dropInstance.dropDom === null) {
       dropInstance.dropDom = dropDom.current
     }
@@ -171,30 +178,48 @@ function useDrop<Data = {}, Rubbish = {}>(
     return () => dropInstance.unSubscribe()
   }, [])
 
-  return dropInstance
+  return _dropInstance.current
 
 }
 
-function useDragListen<Data, Rubbish>(params: () => IListenDragHooksParams<Data, Rubbish>, deep: any[] = _deep) {
+const listenEvent = [ ...dropEvent, dragEvent[2], 'filter' ]
 
-  const first = useRef(true)
+function useDragListen<Data = {}, Rubbish = {}>(
+  operate: () => IListenDragHooksParams<Data, Rubbish>,
+  deep: any[] = _deep
+) {
+
   const context = useContext(DndContext)
-
-  const queueItem = useMemo(() => onListenDrag<Data, Rubbish>({ ...params(), context }), [])
-
-  useLayoutEffect(() => queueItem.unbind, [])
+  const _listenInstance = useRef<ReturnType<typeof onListenDrag>>(null!)
 
   // 解决闭包问题
   useEffect(() => {
-    if (first.current) {
-      first.current = false
-    } else {
-      const events = params()
-      Object.keys(events).forEach(key => {
-        queueItem[key] = events[key]
-      })
+    // 第一次创建
+    if (isNull(_listenInstance)) {
+      // 手动注入context
+      const params = operate()
+      // @ts-ignore 手动筛选掉，实际上有context
+      params.context = context
+      // @ts-ignore 一定有context
+      _listenInstance.current = onListenDrag(params)
+    }
+    // 依赖发生变化
+    else {
+      const listenInstance = _listenInstance.current
+      const currentOperate = operate()
+      for (let event of listenEvent) {
+        listenInstance[event] && (listenInstance[event] = currentOperate[event])
+      }
     }
   }, deep)
+
+  useEffect(() => {
+    const listenInstance = _listenInstance.current
+    return () => {
+      _listenInstance.current = null!
+      listenInstance.unbind()
+    }
+  }, [])
 
 }
 
