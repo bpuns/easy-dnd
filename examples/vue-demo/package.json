@@ -13,6 +13,6 @@
     "vue": "3.4.23"
   },
   "dependencies": {
-    "easy-dnd": "file:../../build"
+    "easy-dnd": "workspace:^"
   }
 }
