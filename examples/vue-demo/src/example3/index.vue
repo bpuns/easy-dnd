@@ -1,6 +1,6 @@
 <template>
   <dnd-provider>
-    <ul className='example3'>
+    <ul className="example3">
       <list-item 
         v-for="(item, index) in list"
         :key="item"
@@ -17,7 +17,7 @@ import { ref } from 'vue'
 import { DndProvider } from 'easy-dnd/vue'
 import ListItem from './ListItem.vue'
 
-const list = ref(['a', 'b', 'c', 'd', 'e', 'f'])
+const list = ref([ 'a', 'b', 'c', 'd', 'e', 'f' ])
 
 const onDragEnd = (fromIndex: number, toIndex: number, isTop: boolean) => {
   // 有两种情况不需要调换位置

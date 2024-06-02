@@ -1,6 +1,6 @@
 <template>
   <dnd-provider>
-    <A></A>
+    <A />
   </dnd-provider>
 </template>
 

@@ -1,9 +1,9 @@
 <template>
-  <div className='example2 example2-b' :ref="drop.dropRef">
+  <div :ref="drop.dropRef" className="example2 example2-b">
     <p>
       B(当前节点只能放置一个节点，如果想要放置新节点，请移除下面的子节点)
     </p>
-    <div v-if="!!child" className='example2-b-children'>
+    <div v-if="!!child" className="example2-b-children">
       {{ child }}
       <button @click="child = null!">移除这个子元素</button>
     </div>
@@ -18,7 +18,7 @@ const child = ref('1')
 
 const drop = useDrop<string, null>({
   config: {
-    acceptType: new Set(['A']),
+    acceptType: new Set([ 'A' ]),
     canDrop(monitor) {
       // 如果B中已经存在一个子元素，不允许放置
       if (child.value) {

@@ -1,9 +1,9 @@
 <template>
-  <div :ref="drag.dragRef" class='example2 example2-a'>
+  <div :ref="drag.dragRef" class="example2 example2-a">
     <input
       v-model="input"
-      placeholder='请输入具体的值,然后拖到B中'
-    />
+      placeholder="请输入具体的值,然后拖到B中"
+    >
   </div>
 </template>
 
@@ -15,8 +15,8 @@ const input = ref('')
 
 const drag = useDrag({
   config: {
-    type: 'A',
-    data: () => input.value,
+    type:      'A',
+    data:      () => input.value,
     className: {
       dragging: 'dragging'
     }

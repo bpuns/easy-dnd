@@ -3,24 +3,24 @@
     {{ listen ? "关闭自定义layer" : "开启自定义layer" }}
   </button>
   <div class="example6-container">
-    <A></A>
-    <B ref="targetDomRef"></B>
+    <A />
+    <B ref="targetDomRef" />
   </div>
-  <div class="example6-layer" ref="layerDom"></div>
+  <div ref="layerDom" class="example6-layer" />
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { type IDnDProvider, type DropCore, useDragListen } from "easy-dnd/vue";
-import A from "./A.vue";
-import B from "./B.vue";
+import { ref } from 'vue'
+import { type IDnDProvider, type DropCore, useDragListen } from 'easy-dnd/vue'
+import A from './A.vue'
+import B from './B.vue'
 
-const listen = ref(true);
+const listen = ref(true)
 
 // 拿到目标节点的实例
-const targetDomRef = ref<{ drop: DropCore }>();
+const targetDomRef = ref<{ drop: DropCore }>()
 // 存储拖拽过程图层
-const layerDom = ref<HTMLDivElement>();
+const layerDom = ref<HTMLDivElement>()
 
 // 拖拽的原始的dom节点
 let dragDom!: HTMLDivElement,
@@ -31,10 +31,10 @@ let dragDom!: HTMLDivElement,
   // 获取目标节点的盒子模型尺寸
   targetRect: DOMRect,
   // 存储拖拽过程修改transform字符函数
-  setTransformStr: ReturnType<typeof createSetTransformStr>;
+  setTransformStr: ReturnType<typeof createSetTransformStr>
 
 // 缩放倍率 拖拽盒子是 50px * 50px  目标盒子是 200px * 200px
-const scale = 4;
+const scale = 4
 
 /**
  * 创建拖拽过程 transform 变化函数
@@ -43,12 +43,12 @@ const scale = 4;
  */
 function createSetTransformStr(
   context: IDnDProvider<unknown, unknown>,
-  cloneDragDom: HTMLDivElement,
+  cloneDragDom: HTMLDivElement
 ) {
   /** 存储目标节点的dom */
-  const targetDom = targetDomRef.value!.drop.dropDom as HTMLDivElement;
+  const targetDom = targetDomRef.value!.drop.dropDom as HTMLDivElement
 
-  targetRect = targetDom.getBoundingClientRect();
+  targetRect = targetDom.getBoundingClientRect()
 
   const /** 拖拽起始点的x点 */
     startX = context.dragCoord.x,
@@ -59,30 +59,30 @@ function createSetTransformStr(
     /** 开始拖拽的时候，目标节点和拖拽节点的距离 */
     startDistance = calculateDistance(
       ...getRectCenterPoint(targetRect),
-      ...getRectCenterPoint(startRect),
-    );
+      ...getRectCenterPoint(startRect)
+    )
 
   /** 斜率 (y2 - y1) / (x2 - x1) */
-  const k = (1 - scale) / (startDistance - 0);
+  const k = (1 - scale) / (startDistance - 0)
   /** 截距 */
-  const b = scale - k * 0;
+  const b = scale - k * 0
 
   /**
    * 计算两个正方形盒子模型的中心点
    * @param rect
    */
   function getRectCenterPoint(rect: DOMRect): [number, number] {
-    return [(rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2];
+    return [ (rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2 ]
   }
 
   /**
    * 计算直角坐标系上任意两点之间的距离
    */
   function calculateDistance(x1: number, y1: number, x2: number, y2: number) {
-    const deltaX = x2 - x1;
-    const deltaY = y2 - y1;
-    const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-    return distance;
+    const deltaX = x2 - x1
+    const deltaY = y2 - y1
+    const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2)
+    return distance
   }
 
   /**
@@ -90,65 +90,65 @@ function createSetTransformStr(
    * @param x
    */
   function getScale(x: number) {
-    return x * k + b;
+    return x * k + b
   }
 
   /**
    * 获取transform字符串
    * @param draggingCoord 拖拽中的指针位置
    */
-  function setTransformStr(draggingCoord: Record<"x" | "y", number>) {
-    const [currentX, currentY] = [draggingCoord.x, draggingCoord.y];
-    const translateX = startRect.x + currentX - startX;
-    const translateY = startRect.y + currentY - startY;
+  function setTransformStr(draggingCoord: Record<'x' | 'y', number>) {
+    const [ currentX, currentY ] = [ draggingCoord.x, draggingCoord.y ]
+    const translateX = startRect.x + currentX - startX
+    const translateY = startRect.y + currentY - startY
     const scale = getScale(
       calculateDistance(
         ...getRectCenterPoint(targetRect),
-        ...getRectCenterPoint(cloneDragDom.getBoundingClientRect()),
-      ),
-    );
-    cloneDragDom.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        ...getRectCenterPoint(cloneDragDom.getBoundingClientRect())
+      )
+    )
+    cloneDragDom.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`
   }
 
-  return setTransformStr;
+  return setTransformStr
 }
 
-let isDrop = false;
+let isDrop = false
 
 // 监听函数
 useDragListen({
   filter: () => listen.value,
   dragStart(_, context) {
     // 存储拖拽dom
-    dragDom = context.dragDom as HTMLDivElement;
+    dragDom = context.dragDom as HTMLDivElement
     // 获取初始Rect
-    startRect = dragDom.getBoundingClientRect();
+    startRect = dragDom.getBoundingClientRect()
     // 克隆一份
-    cloneDragDom = dragDom.cloneNode(true) as HTMLDivElement;
+    cloneDragDom = dragDom.cloneNode(true) as HTMLDivElement
     // 添加dom到图层上
-    layerDom.value!.appendChild(cloneDragDom);
+    layerDom.value!.appendChild(cloneDragDom)
 
     // 获取设置偏移的函数
-    setTransformStr = createSetTransformStr(context, cloneDragDom);
+    setTransformStr = createSetTransformStr(context, cloneDragDom)
 
     // 设置克隆dom的初始化设置
-    cloneDragDom.style.transform = `translate(${startRect.x}px, ${startRect.y}px)`;
+    cloneDragDom.style.transform = `translate(${startRect.x}px, ${startRect.y}px)`
 
-    dragDom.classList.add("example6-hide");
+    dragDom.classList.add('example6-hide')
   },
   drag(_, { dragCoord }) {
-    setTransformStr(dragCoord);
+    setTransformStr(dragCoord)
   },
   dragEnd() {
-    cloneDragDom.classList.add("example6-reset-animation");
-    cloneDragDom.style.transform = `translate(${startRect.x}px, ${startRect.y}px)`;
+    cloneDragDom.classList.add('example6-reset-animation')
+    cloneDragDom.style.transform = `translate(${startRect.x}px, ${startRect.y}px)`
     cloneDragDom.ontransitionend = () => {
       // 还原样式
-      layerDom.value!.innerHTML = "";
-      dragDom.classList.remove("example6-hide");
-    };
-  },
-});
+      layerDom.value!.innerHTML = ''
+      dragDom.classList.remove('example6-hide')
+    }
+  }
+})
 </script>
 
 <style>

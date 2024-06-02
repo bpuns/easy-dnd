@@ -1,8 +1,15 @@
 <template>
   <ul class="example4-ul">
     <dnd-provider>
-      <drag-drop-item v-for="(item, index) in list" :key="item" :item="item" :index="index" @onDragStart="onDragStart"
-        @onDragEnd="onDragEnd" @onDragUpdate="onDragUpdate" />
+      <drag-drop-item
+        v-for="(item, index) in list"
+        :key="item"
+        :item="item"
+        :index="index"
+        @onDragStart="onDragStart"
+        @onDragEnd="onDragEnd"
+        @onDragUpdate="onDragUpdate"
+      />
     </dnd-provider>
   </ul>
 </template>
@@ -24,7 +31,7 @@ let cacheList: string[],
 
 // 开始拖拽
 const onDragStart = (_dragIndex: number) => {
-  cacheList = [...list.value]
+  cacheList = [ ...list.value ]
   dragIndex = _dragIndex
 }
 
@@ -39,7 +46,7 @@ const onDragUpdate = (enterItem: string) => {
   if (dropIndex === dragIndex) {
     list.value = cacheList
   } else {
-    const nextList = [...cacheList]
+    const nextList = [ ...cacheList ]
     const removeItem = nextList.splice(dragIndex, 1)
     nextList.splice(dropIndex, 0, removeItem[0])
     list.value = nextList

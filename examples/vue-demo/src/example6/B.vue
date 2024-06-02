@@ -1,20 +1,20 @@
 <template>
-  <div class="example6-dropItem" :ref="drop.dropRef"></div>
+  <div :ref="drop.dropRef" class="example6-dropItem" />
 </template>
 
 <script setup lang="ts">
-import { useDrop } from "easy-dnd/vue";
+import { useDrop } from 'easy-dnd/vue'
 
 const drop = useDrop({
   config: {
-    acceptType: new Set(["A"]),
-  },
-});
+    acceptType: new Set([ 'A' ])
+  }
+})
 
 // 暴露drop实例
 defineExpose({
-  drop,
-});
+  drop
+})
 </script>
 
 <style>

@@ -13,20 +13,20 @@ const emits = defineEmits<{
 
 const props = defineProps({
   index: {
-    type: Number,
+    type:     Number,
     required: true
   },
   item: {
-    type: String,
+    type:     String,
     required: true
   }
 })
 
 const drag = useDrag({
   config: {
-    type: 'list',
+    type:      'list',
     // 把索引作为存放数据
-    data: () => props.index,
+    data:      () => props.index,
     className: {
       dragging: 'dragging'
     }
@@ -35,7 +35,7 @@ const drag = useDrag({
 
 const drop = useDrop<number, any>({
   config: {
-    acceptType: new Set(['list'])
+    acceptType: new Set([ 'list' ])
   },
   // 进入时触发的函数
   dragOver(monitor) {

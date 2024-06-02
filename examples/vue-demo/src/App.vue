@@ -1,17 +1,17 @@
 <template>
   <h2>Vue</h2>
-  <div className='change-button'>
-    <button 
-      :key="item.tip"
+  <div className="change-button">
+    <button
       v-for="(item, index) in examples"
+      :key="item.tip"
       :class="['app-button', index === select && 'app-button-selected']"
       @click="onChangeTab(index)"
     >
-      例子{{index + 1}}： {{ item.tip }}
+      例子{{ index + 1 }}： {{ item.tip }}
     </button>
   </div>
   <div style="padding: 10px">
-    <component :is="activeComponent"></component>
+    <component :is="activeComponent" />
   </div>
 </template>
 
@@ -32,7 +32,7 @@ const examples = [
   { component: Example3, tip: '拖拽排序' },
   { component: Example4, tip: '网格拖拽排序' },
   { component: Example5, tip: '开启/关闭拖拽' },
-  { component: Example6, tip: '拖拽蒙版' },
+  { component: Example6, tip: '拖拽蒙版' }
 ]
   .map(t => ({
     ...t,

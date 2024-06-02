@@ -1,7 +1,7 @@
 <template>
   <dnd-provider>
-    <A></A>
-    <B></B>
+    <A />
+    <B />
   </dnd-provider>
 </template>
 

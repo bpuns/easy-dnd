@@ -5,6 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { DndProvider } from "easy-dnd/vue";
-import Layer from "./Layer.vue";
+import { DndProvider } from 'easy-dnd/vue'
+import Layer from './Layer.vue'
 </script>

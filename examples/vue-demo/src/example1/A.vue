@@ -10,13 +10,13 @@ import { useDrag } from 'easy-dnd/vue'
 const drag = useDrag({
   config: {
     // 给拖拽元素设置一个type（任意类型都可以）
-    type: 'A',
+    type:      'A',
     // 拖拽元素存放的数据
-    data: () => 'A给B的数据',
+    data:      () => 'A给B的数据',
     // 样式
     className: {
       // 鼠标移入时要添加的样式名
-      hover: 'hover',
+      hover:    'hover',
       // 拖拽中要添加的样式名
       dragging: 'dragging'
     }

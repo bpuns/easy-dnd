@@ -3,13 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import { useDrag } from "easy-dnd/vue";
+import { useDrag } from 'easy-dnd/vue'
 
 const drag = useDrag({
   config: {
-    type: "A",
-  },
-});
+    type: 'A'
+  }
+})
 </script>
 
 <style>

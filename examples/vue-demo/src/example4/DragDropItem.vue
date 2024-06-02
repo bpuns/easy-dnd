@@ -1,5 +1,5 @@
 <template>
-  <div className="example4-li" :ref="dropDragRef">
+  <div :ref="dropDragRef" className="example4-li">
     <p>
       {{ props.item }}
     </p>
@@ -17,11 +17,11 @@ const emits = defineEmits<{
 
 const props = defineProps({
   index: {
-    type: Number,
+    type:     Number,
     required: true
   },
   item: {
-    type: String,
+    type:     String,
     required: true
   }
 })
@@ -30,8 +30,8 @@ const dragDropType = 'grid_item'
 
 const drag = useDrag({
   config: {
-    type: dragDropType,
-    data: () => props.item,
+    type:      dragDropType,
+    data:      () => props.item,
     className: {
       dragging: 'dragging'
     }
@@ -46,7 +46,7 @@ const drag = useDrag({
 
 const drop = useDrop<number, any>({
   config: {
-    acceptType: new Set([dragDropType])
+    acceptType: new Set([ dragDropType ])
   },
   dragOver() {
     emits('onDragUpdate', props.item)

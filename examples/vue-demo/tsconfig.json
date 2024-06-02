@@ -26,8 +26,8 @@
       "easy-dnd": [
         "../../build"
       ],
-      "easy-dnd/react": [
-        "../../build/react"
+      "easy-dnd/vue": [
+        "../../build/vue"
       ]
     }
   },

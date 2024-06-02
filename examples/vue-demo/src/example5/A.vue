@@ -18,8 +18,8 @@ const drag = useDrag({
   config: {
     // 默认是否允许拖拽
     defaultDraggable: allowDrag.value,
-    type: 'A',
-    className: {
+    type:             'A',
+    className:        {
       hover: 'hover'
     }
   }
