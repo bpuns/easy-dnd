@@ -1,5 +1,9 @@
 <template>
   <DndProvider>
+    <div class="history-bar">
+      <button :disabled="history.point === -1" @click="undo">撤销</button>
+      <button :disabled="history.point === history.list.length - 1" @click="redo">重做</button>
+    </div>
     <div style="display: flex;">
       <div style="width: 200px;">
         11
@@ -16,10 +20,21 @@ import { DndProvider } from 'easy-dnd/vue'
 import { Form } from './component'
 import { useFormDragContext } from './utils'
 
-const { designData } = useFormDragContext()
+const { designData, history, undo, redo } = useFormDragContext()
 </script>
 
 <style lang="scss">
+.history-bar {
+  border: 1px solid #000;
+  display: flex;
+  padding: 10px;
+  gap: 10px;
+
+  >button {
+    flex: 1;
+  }
+}
+
 .design-node {
   position: relative;
   border: 1px solid #000;
