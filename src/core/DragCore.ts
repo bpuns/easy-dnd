@@ -91,7 +91,8 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       throw new Error(SUBSCRIBE_TIP('Drag'))
     }
     ctx._drags.add(this)
-    this._toggleDraggable(this._draggable = this._isSubscribe = true)
+    this._toggleDraggable(this._draggable)
+    this._isSubscribe = true
     ctx._dragItemDragStarts.add(this._dragItemDragStart)
     ctx._dragItemDragEnds.add(this._dragItemDragEnd)
     this._addHover()
@@ -153,9 +154,11 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     // unSubscribe的时候要用
     this._isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 
-    Array.from(this.dragDom.children).forEach(child => {
-      child?.['style']?.setProperty('pointerEvents', 'none')
-    })
+    const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
+    let child: HTMLElement
+    for (child of childNodes) {
+      child['style']['pointerEvents'] = 'none'
+    }
     // 拖拽监听函数
     const { _dragListen } = ctx
     _dragListen._ing = _dragListen._queue.filter(t => t.filter(ctx))
@@ -173,6 +176,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
 
   _drag = (e: DragEvent) => {
     this.monitor.event = e
+    e.stopPropagation()
     const { context: ctx, prePosition } = this
     const { dragCoord } = ctx
     // 避免重复执行drag
@@ -191,11 +195,14 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     const { monitor, params, context: ctx } = this
     // 把状态还原，不然组件卸载的时候，会多触发一次dragEnd方法
     this._isEnd = true
+    e.stopPropagation()
     monitor.event = e
     // 还原pointer-events
-    Array.from(this.dragDom.children).forEach(child => {
-      child?.['style']?.setProperty('pointerEvents', 'auto')
-    })
+    const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
+    let child: HTMLElement
+    for (child of childNodes) {
+      child['style']['pointerEvents'] = 'auto'
+    }
     this._execListen('dragEnd', ctx)
     // 调用状态变化回调
     params?.dragEnd?.(monitor, ctx)

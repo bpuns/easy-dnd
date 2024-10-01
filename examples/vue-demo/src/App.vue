@@ -23,6 +23,7 @@ import Example3 from './example3/index.vue'
 import Example4 from './example4/index.vue'
 import Example5 from './example5/index.vue'
 import Example6 from './example6/index.vue'
+import Example7 from './example7/index.vue'
 
 const STORAGE_KEY = 'vue-demo-select-index'
 
@@ -32,7 +33,8 @@ const examples = [
   { component: Example3, tip: '拖拽排序' },
   { component: Example4, tip: '网格拖拽排序' },
   { component: Example5, tip: '开启/关闭拖拽' },
-  { component: Example6, tip: '拖拽蒙版' }
+  { component: Example6, tip: '拖拽蒙版' },
+  { component: Example7, tip: '设计器' }
 ]
   .map(t => ({
     ...t,
