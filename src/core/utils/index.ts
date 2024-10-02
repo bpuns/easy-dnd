@@ -13,8 +13,6 @@ import {
   bindGetContextCoords
 } from './private'
 
-/** 判断是否绑定了拖拽 */
-export const BIND_DRAG = Symbol('bind-drag')
 /** 拖拽上下文的key */
 export const DND_CTX = Symbol('easy-dnd')
 
@@ -113,6 +111,7 @@ export function createDragMonitor<Data, Rubbish>(instance: DragCore<Data, Rubbis
   const getCtx = () => instance.context
   return {
     event:      null!,
+    dragDom:    null!,
     getContext: getCtx,
     getRubbish: () => getCtx().getRubbish()
   }

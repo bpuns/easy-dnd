@@ -5,6 +5,9 @@ export const DESTROY_TIP = '上下文已被注销，请使用新的上下文'
 /** 订阅提示 */
 export const SUBSCRIBE_TIP = (s: string) => `class ${s}调用subscribe方法前必须调用registerDom方法`
 
+/** 放置元素标记位 */
+export const DROP_FLAG = 'data-easy_dnd_droppable'
+
 /**
  * 从数组中删除某个元素
  * @param arr 

@@ -1,7 +1,7 @@
-import type { IDnDProvider, IDragCoreConstructorParams } from './@types'
+import type { IDragCoreConstructorParams } from './@types'
 import { DragDropBase } from './@types'
-import { BIND_DRAG, isElement, createDragMonitor } from './utils'
-import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/private'
+import { isElement, createDragMonitor } from './utils'
+import { DESTROY_TIP, SUBSCRIBE_TIP, DROP_FLAG } from './utils/private'
 
 type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
 
@@ -53,9 +53,6 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   /** dom注册 */
   registerDom = (dom: HTMLElement) => {
     this.dragDom = dom
-    if (isElement(dom)) {
-      dom[BIND_DRAG] = true
-    }
     return this
   }
 
@@ -80,7 +77,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   /** 修改样式 */
   _editClass = (operate: 'add' | 'remove', key: keyof DragClassName) => {
     const classValue = this._className[key]
-    classValue && this.dragDom?.classList[operate](classValue)
+    classValue && this.context.dragPreventDom.classList[operate](classValue)
   }
 
   subscribe = () => {
@@ -107,7 +104,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     if (!this._isSubscribe) return
     const { dragDom, context: ctx } = this
     if (dragDom) {
-      this._toggleDraggable(dragDom[BIND_DRAG] = this._draggable = this._isSubscribe = false)
+      this._toggleDraggable(this._draggable = this._isSubscribe = false)
       // 如果结束拖拽标识不为true，需要手动调用_dragEnd还原状态
       !this._isEnd && this._dragEnd(this.monitor.event)
       this._removeHover()
@@ -143,7 +140,8 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     monitor.event = e
     // 存储状态到全局
     ctx.dragType = config.type
-    ctx.dragDom = this.dragDom
+    ctx.dragDom = monitor.dragDom = this.dragDom
+    ctx.dragPreventDom = config.getPreventDom?.(monitor, ctx) || this.dragDom
     ctx.dropInstance = null
     // 存储拖拽数据
     ctx.dragData = config.data?.()
@@ -154,11 +152,9 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     // unSubscribe的时候要用
     this._isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 
-    const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
-    let child: HTMLElement
-    for (child of childNodes) {
-      child['style']['pointerEvents'] = 'none'
-    }
+    ctx.dragPreventDom.querySelectorAll(`[${DROP_FLAG}]`).forEach(t => {
+      t['style']['pointerEvents'] = 'none'
+    })
     // 拖拽监听函数
     const { _dragListen } = ctx
     _dragListen._ing = _dragListen._queue.filter(t => t.filter(ctx))
@@ -198,11 +194,9 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     e.stopPropagation()
     monitor.event = e
     // 还原pointer-events
-    const childNodes = Array.from(this.dragDom.children) as HTMLElement[]
-    let child: HTMLElement
-    for (child of childNodes) {
-      child['style']['pointerEvents'] = 'auto'
-    }
+    ctx.dragPreventDom.querySelectorAll(`[${DROP_FLAG}]`).forEach(t => {
+      (t as HTMLElement).style.removeProperty('pointer-events')
+    })
     this._execListen('dragEnd', ctx)
     // 调用状态变化回调
     params?.dragEnd?.(monitor, ctx)
@@ -211,22 +205,24 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     for (itemDragEnd of ctx._dragItemDragEnds) itemDragEnd()
     // 执行所有dndCtx的dropItems中的函数
     for (itemDragEnd of ctx._dropItemDragEnds) itemDragEnd()
-    this._clearMemory()
     // 移除样式
     this._editClass('remove', 'dragging')
     // 清除拖拽实例
     setTimeout(() => ctx.dragInstance = null)
     // 清除监听过程函数
     ctx._dragListen._ing = null!
+    this._clearMemory()
   }
 
   /** 清空内存占用，避免内存泄露 */
   _clearMemory = () => {
     const ctx = this.context
-    ctx.dragDom = null!
-    ctx.dragData = null!
-    ctx.enterDom = null!
-    this.monitor.event = null!
+    ctx.dragDom
+      = ctx.dragData
+      = ctx.enterDom
+      = ctx.dragPreventDom
+      = this.monitor.event
+      = null!
   }
 
   _addHover = () => {

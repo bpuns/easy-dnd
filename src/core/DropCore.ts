@@ -1,7 +1,7 @@
-import { IDnDProvider, IDropCoreConstructorParams } from './@types'
+import { IDropCoreConstructorParams } from './@types'
 import { DND_MODE, DragDropBase } from './@types'
-import { BIND_DRAG, isElement, createDropMonitor } from './utils'
-import { DESTROY_TIP, SUBSCRIBE_TIP } from './utils/private'
+import { isElement, createDropMonitor } from './utils'
+import { DESTROY_TIP, SUBSCRIBE_TIP, DROP_FLAG } from './utils/private'
 
 type DropClassName = IDropCoreConstructorParams<any, any>['config']['className']
 
@@ -56,6 +56,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     dropDom.addEventListener('dragover', this._dragover)
     dropDom.addEventListener('dragleave', this._dragleave)
     dropDom.addEventListener('drop', this._drop)
+    dropDom.setAttribute(DROP_FLAG, '')
     return this
   }
 
@@ -72,6 +73,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       dropDom.removeEventListener('dragleave', this._dragleave)
       dropDom.removeEventListener('drop', this._drop)
       this.dropDom = null!
+      dropDom.removeAttribute(DROP_FLAG)
       this.context._drops.delete(this)
     }
   }
@@ -83,12 +85,12 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   }
 
   canDrop = (e?: DragEvent) => {
-    const { dragDom } = this.context
-    // 如果dragDom不存在，说明不是同一个上下文的拖拽，阻止拖拽
-    if (!dragDom) return false
+    const { dragPreventDom } = this.context
+    // 如果dragPreventDom不存在，说明不是同一个上下文的拖拽，阻止拖拽
+    if (!dragPreventDom) return false
     this.monitor.event = e
     // 如果自己拖自己，不能drop
-    if (this.dropDom[BIND_DRAG] && dragDom === this.dropDom) return false
+    if (dragPreventDom === this.dropDom) return false
     // 拖拽的类型是否在当前实例的acceptType中
     if (this.config.acceptType.has(this.monitor.getDragType())) {
       // 验证config中是否也允许拖拽

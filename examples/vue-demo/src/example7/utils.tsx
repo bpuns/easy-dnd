@@ -239,11 +239,8 @@ export function useFormDragContext() {
               lastNodeParent.children!.splice(lastIndex, 0, dragData.dragNode)
               break
             case DIRECTION.CENTER:
-              console.log(current(lastNode.children))
-              debugger
               lastNode.children!.push(dragData.dragNode)
-              console.log(current(lastNode.children))
-              debugger
+              // console.log(current(lastNode.children))
               break
             case DIRECTION.BOTTOM:
               lastNodeParent.children!.splice(lastIndex + 1, 0, dragData.dragNode)

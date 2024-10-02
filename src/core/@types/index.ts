@@ -19,8 +19,10 @@ interface IDnDProvider<Data, Rubbish> {
   dragCoord: Record<'x' | 'y', number>
   /** 正在拖拽元素的描述 */
   dragType: any
-  /** 保存正在拖拽的元素的dom */
+  /** 正在拖拽的元素的dom */
   dragDom: HTMLElement
+  /** 用于阻止拖拽默认行为的dom，如果没有设置默认是 IDnDProvider.dragDom */
+  dragPreventDom: HTMLElement
   /** 拖拽元素的data */
   dragData: Data
   /** 某个元素执行了drop，那么这个drop的实例就会存储在这里，在整个拖拽生命周期结束后，此变量也会被删除 */
@@ -86,6 +88,8 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
       /** 该元素拖拽中触发添加的className */
       dragging?: string
     }
+    /** 获取阻止默认行为的节点dom，默认是 dragInstance.dragDom */
+    getPreventDom?: (monitor: IDragCoreMonitor<Data, Rubbish>, context: IDnDProvider<Data, Rubbish>) => HTMLElement | null
     /** 设置默认是否允许拖拽   true 允许拖拽 | false 不允许拖拽，默认是true */
     defaultDraggable?: boolean
     /** 拖拽作用域 */
@@ -95,6 +99,8 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
 
 /** Drag Monitor */
 interface IDragCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbish>, 'getRubbish'> {
+  /** 当前正在拖拽的元素 */
+  dragDom: HTMLElement;
   /** 拖拽事件对象 */
   event: DragEvent
   /** 获取dnd上下文 */
