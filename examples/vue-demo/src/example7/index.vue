@@ -5,11 +5,15 @@
       <button :disabled="history.point === history.list.length - 1" @click="redo">重做</button>
     </div>
     <div style="display: flex;">
-      <div style="width: 200px;">
-        11
+      <div class="new-add-control">
+        <NewControl :type="NODE_TYPE.GRID" />
+        <NewControl :type="NODE_TYPE.FORM_CONTROL" />
       </div>
       <div style="flex: 1;">
         <Form :node="designData" />
+      </div>
+      <div class="property-config">
+        <h2>属性配置</h2>
       </div>
     </div>
   </DndProvider>
@@ -17,8 +21,8 @@
 
 <script lang="ts" setup>
 import { DndProvider } from 'easy-dnd/vue'
-import { Form } from './component'
-import { useFormDragContext } from './utils'
+import { Form, NewControl } from './component'
+import { NODE_TYPE, useFormDragContext } from './utils'
 
 const { designData, history, undo, redo } = useFormDragContext()
 </script>
@@ -80,5 +84,33 @@ const { designData, history, undo, redo } = useFormDragContext()
 
 .dragging {
   opacity: 0.1;
+}
+
+.new-add-control {
+  width: 300px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #000;
+
+  >div {
+    min-width: 0;
+    border: 1px dashed #000;
+    padding: 10px;
+    border-radius: 10px;
+    height: min-content;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.property-config {
+  width: 300px;
+  min-width: 0;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #000;
 }
 </style>
