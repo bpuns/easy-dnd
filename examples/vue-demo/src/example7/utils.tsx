@@ -14,6 +14,9 @@ setAutoFreeze(false)
 
 export const DRAG_CONTEXT_KEY = Symbol('dragContext') as InjectionKey<ReturnType<typeof useFormDragContext>>
 
+/** 最大历史记录长度 */
+const MAX_HISTORY_LENGTH = 5
+
 /** 放置方向 */
 export const enum DIRECTION {
   TOP = 0,
@@ -136,8 +139,13 @@ export function useFormDragContext() {
     ]
   })
 
+  /** 选中的节点 */
+  const selected = shallowRef<DragNode | null>(null)
+
   const history = shallowRef({
+    /** 历史记录列表 */
     list:  [] as { undo: Patch[], redo: Patch[] }[],
+    /** 当前记录指针 */
     point: -1
   })
 
@@ -147,8 +155,7 @@ export function useFormDragContext() {
     const { list, point } = history.value
     list.splice(point + 1)
     list.push({ undo: inversePatches, redo: patches })
-    // 如果历史栈超过 5 个，移除最旧的记录
-    list.length > 5 && list.shift()
+    list.length > MAX_HISTORY_LENGTH && list.shift()
     // 更新 designData 和 history 的值
     designData.value = nextState
     // 确保 point 不超过 4
@@ -156,6 +163,8 @@ export function useFormDragContext() {
   }
 
   const provideData = {
+    /** 选中的节点 */
+    selected,
     /** 设计数据 */
     designData,
     /** 历史记录 */
@@ -199,8 +208,25 @@ export function useFormDragContext() {
         e.stopPropagation()
         recordHistory(
           produceWithPatches(designData.value, draft => {
-            const { lastNodeParent, lastIndex } = parsePathNode(draft, position.value)
+            const { lastNodeParent, lastNode, lastIndex } = parsePathNode(draft, position.value)
             lastNodeParent.children!.splice(lastIndex, 1)
+            // 判断移除的节点中是否包含了选中节点
+            const selectedNodeId = selected.value?.id
+            if (selectedNodeId !== undefined){
+              const removeNodes = [ lastNode ]
+              out: while (removeNodes.length > 0) {
+                const _removeNodes = removeNodes.splice(0, removeNodes.length)
+                for (const node of _removeNodes) {
+                  // 判断是否是选中节点
+                  if (node.id === selectedNodeId) {
+                    selected.value = null
+                    break out
+                  }
+                  // 遍历子节点
+                  node.children && removeNodes.push(...node.children)
+                }
+              }
+            }
           })
         )
       }
@@ -257,7 +283,7 @@ export function useFormDragContext() {
       return (e) => {
         e.stopPropagation()
         const { lastNode } = parsePathNode(designData.value, position.value)
-        console.log(lastNode)
+        selected.value = lastNode
       }
     }
   }

@@ -66,7 +66,7 @@ export const Form = defineComponent({
 
     return () => {
       return (
-        <div className='design-node' ref={drop.dropRef} onClick={onSelect}>
+        <div className='design-node' ref={drop.dropRef} onClick={onSelect} data-key={props.node.id}>
           <h2>表单容器</h2>
           {props.node.children?.map((t, i) => formFactory(t, '', i))}
         </div>
@@ -138,7 +138,7 @@ export const Grid = defineComponent({
 
     return () => {
       return (
-        <div className='design-node' ref={drop.dropRef} onClick={onSelect}>
+        <div className='design-node' ref={drop.dropRef} onClick={onSelect} data-key={props.node.id}>
           {/* 设置按住图标才能拖拽，需要配合 getPreventDom 使用，不然会有一些不可预料的bug出现 */}
           <img src='/drag.svg' alt='drag' ref={drag.dragRef} style={{ width: '20px', height: '20px' }} />
           <span>{props.node.name}</span>
@@ -162,6 +162,7 @@ export const FormControl = defineComponent({
       config: {
         type:      NODE_TYPE.FORM_CONTROL,
         className: {
+          hover:    'hover',
           dragging: DRAG_CLASS.DRAGGING
         },
         data() {
@@ -203,7 +204,7 @@ export const FormControl = defineComponent({
     const onSelect = createSelect(currentPosition)
 
     return () => (
-      <div className='design-node' ref={dropDragRef} onClick={onSelect}>
+      <div className='design-node' ref={dropDragRef} onClick={onSelect} data-key={props.node.id}>
         <span>{props.node.name}</span>
         <button onClick={onDelete}>移除</button>
       </div>
@@ -226,6 +227,7 @@ export const NewControl = defineComponent({
       config: {
         type:      props.type,
         className: {
+          hover:    'hover',
           dragging: DRAG_CLASS.DRAGGING
         },
         data() {

@@ -77,7 +77,10 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   /** 修改样式 */
   _editClass = (operate: 'add' | 'remove', key: keyof DragClassName) => {
     const classValue = this._className[key]
-    classValue && this.context.dragPreventDom.classList[operate](classValue)
+    if (classValue){
+      const dom = this.context.dragPreventDom || this.dragDom
+      dom.classList[operate](classValue)
+    }
   }
 
   subscribe = () => {

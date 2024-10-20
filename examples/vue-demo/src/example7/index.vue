@@ -13,18 +13,39 @@
         <Form :node="designData" />
       </div>
       <div class="property-config">
-        <h2>属性配置</h2>
+        <div v-if="selected">
+          <h3>正在编辑的控件：{{ selected.name }}</h3>
+          <label>
+            名称：
+            <input v-model="selected.name">
+          </label>
+        </div>
       </div>
     </div>
   </DndProvider>
 </template>
 
 <script lang="ts" setup>
+import { onBeforeUnmount, onMounted, watchEffect } from 'vue'
 import { DndProvider } from 'easy-dnd/vue'
 import { Form, NewControl } from './component'
 import { NODE_TYPE, useFormDragContext } from './utils'
 
-const { designData, history, undo, redo } = useFormDragContext()
+const {
+  undo,
+  redo,
+  history,
+  selected,
+  designData
+} = useFormDragContext()
+
+// 选中样式
+const style = document.createElement('style')
+onMounted(() => document.head.appendChild(style))
+onBeforeUnmount(() => document.head.removeChild(style))
+watchEffect(() => {
+  style.innerText = selected.value ? `.design-node[data-key="${selected.value.id}"] {background: #f0f0f0;}` : ''
+})
 </script>
 
 <style lang="scss">
@@ -44,6 +65,7 @@ const { designData, history, undo, redo } = useFormDragContext()
   border: 1px solid #000;
   padding: 10px;
   margin: 10px;
+  cursor: pointer;
 
   >button {
     margin-left: 10px;
