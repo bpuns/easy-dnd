@@ -75,6 +75,11 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
     monitor: IDragCoreMonitor<Data, Rubbish>,
     context: IDnDProvider<Data, Rubbish>
   ) => any
+  /** 鼠标移入触发的方法 */
+  hover?: (
+    monitor: IDragCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 配置 */
   config: {
     /** 当前拖拽元素的类型 */
@@ -102,7 +107,7 @@ interface IDragCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbis
   /** 当前正在拖拽的元素 */
   dragDom: HTMLElement;
   /** 拖拽事件对象 */
-  event: DragEvent
+  event: Event
   /** 获取dnd上下文 */
   getContext: () => IDnDProvider<Data, Rubbish>
 }
@@ -175,7 +180,7 @@ interface IDropCoreMonitor<Data, Rubbish> extends Pick<IDnDProvider<Data, Rubbis
   /** 获取dropDom的尺寸 */
   getDomRect: () => DOMRect
   /** 拖拽事件对象 */
-  event: DragEvent
+  event: Event
   /** 获取整个dnd的上下文 */
   getContext: () => IDnDProvider<Data, Rubbish>
   /** 获取正在拖拽的元素的type */

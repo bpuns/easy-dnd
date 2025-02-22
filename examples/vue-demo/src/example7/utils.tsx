@@ -1,18 +1,23 @@
 import type { IDropCoreMonitor } from 'easy-dnd'
-import { ref, provide, type InjectionKey, Ref, shallowRef } from 'vue'
+import { ref, provide, type InjectionKey, Ref, shallowRef, inject, computed, PropType } from 'vue'
 import {
   type Patch,
-  current,
   enablePatches,
   produceWithPatches,
   setAutoFreeze,
   applyPatches
 } from 'immer'
+import { useDnd } from 'easy-dnd/vue'
+import { nextTick } from 'vue'
 
 enablePatches()
 setAutoFreeze(false)
 
 export const DRAG_CONTEXT_KEY = Symbol('dragContext') as InjectionKey<ReturnType<typeof useFormDragContext>>
+
+export function useFormDesignContext() {
+  return inject(DRAG_CONTEXT_KEY)!
+}
 
 /** 最大历史记录长度 */
 const MAX_HISTORY_LENGTH = 5
@@ -36,6 +41,7 @@ export interface DragNode {
   id: string
   name: string,
   type: NODE_TYPE,
+  componentProps: Record<string, any>
   children?: DragNode[]
 }
 
@@ -53,6 +59,8 @@ export interface DragData {
 export interface RubbishData {
   /** 放置元素的信息 */
   direction: DIRECTION
+  /** 表单根节点dom */
+  formRootDom: HTMLElement
 }
 
 /**
@@ -112,35 +120,46 @@ function aIsBeforeB(insertAt: string, removeAt: string): [isBefore: boolean, sam
 type Monitor = IDropCoreMonitor<DragData, RubbishData>
 
 export function useFormDragContext() {
+
   const designData = ref<DragNode>({
-    id:       'root',
-    name:     '表单',
-    type:     NODE_TYPE.FORM,
-    children: [
+    id:             'root',
+    name:           '表单',
+    type:           NODE_TYPE.FORM,
+    componentProps: {},
+    children:       [
       {
-        id:       'a',
-        type:     NODE_TYPE.GRID,
-        name:     '网格布局1',
-        children: [
-          { id: 'a1', name: '输入框', type: NODE_TYPE.FORM_CONTROL },
-          { id: 'a2', name: '多行文本', type: NODE_TYPE.FORM_CONTROL }
+        id:             'a',
+        type:           NODE_TYPE.GRID,
+        name:           '网格布局1',
+        componentProps: {},
+        children:       [
+          { id: 'a1', componentProps: {}, name: '输入框', type: NODE_TYPE.FORM_CONTROL },
+          { id: 'a2', componentProps: {}, name: '多行文本', type: NODE_TYPE.FORM_CONTROL }
         ]
       },
-      { id: 'b', name: '下拉框', type: NODE_TYPE.FORM_CONTROL },
+      { id: 'b', name: '下拉框', componentProps: {}, type: NODE_TYPE.FORM_CONTROL },
       {
-        id:       'c',
-        name:     '网格布局2',
-        type:     NODE_TYPE.GRID,
-        children: [
-          { id: 'c1', name: '内部对象', type: NODE_TYPE.FORM_CONTROL },
-          { id: 'c2', name: '富文本', type: NODE_TYPE.FORM_CONTROL }
+        id:             'c',
+        name:           '网格布局2',
+        componentProps: {},
+        type:           NODE_TYPE.GRID,
+        children:       [
+          { id: 'c1', componentProps: {}, name: '内部对象', type: NODE_TYPE.FORM_CONTROL },
+          { id: 'c2', componentProps: {}, name: '富文本', type: NODE_TYPE.FORM_CONTROL }
         ]
       }
     ]
   })
 
   /** 选中的节点 */
-  const selected = shallowRef<DragNode | null>(null)
+  const selected = shallowRef<{
+    /** node */
+    node: DragNode,
+    /** 是否选中form */
+    clickIsForm: boolean,
+    /** css样式 */
+    styleProperty: Record<string, string>
+  } | null>(null)
 
   const history = shallowRef({
     /** 历史记录列表 */
@@ -160,6 +179,10 @@ export function useFormDragContext() {
     designData.value = nextState
     // 确保 point 不超过 4
     history.value = { list, point: Math.min(point + 1, 4) }
+    // 刷新位置
+    nextTick(()=>{
+      provideData.refreshSelectFrame(selected.value?.node)
+    })
   }
 
   const provideData = {
@@ -172,6 +195,7 @@ export function useFormDragContext() {
     /** 撤销 */
     undo() {
       const { list, point } = history.value
+      provideData.selected.value = null
       if (point >= 0) {
         designData.value = applyPatches(designData.value, list[point].undo)
         history.value = { list, point: point - 1 }
@@ -182,6 +206,7 @@ export function useFormDragContext() {
     /** 重做 */
     redo() {
       const { list, point } = history.value
+      provideData.selected.value = null
       if (point < list.length - 1) {
         designData.value = applyPatches(designData.value, list[point + 1].redo)
         history.value = { list, point: point + 1 }
@@ -203,33 +228,30 @@ export function useFormDragContext() {
       dom.classList.add(className)
     },
     /** 节点移除 */
-    createRemoveNode(position: Ref<string>) {
-      return (e) => {
-        e.stopPropagation()
-        recordHistory(
-          produceWithPatches(designData.value, draft => {
-            const { lastNodeParent, lastNode, lastIndex } = parsePathNode(draft, position.value)
-            lastNodeParent.children!.splice(lastIndex, 1)
-            // 判断移除的节点中是否包含了选中节点
-            const selectedNodeId = selected.value?.id
-            if (selectedNodeId !== undefined){
-              const removeNodes = [ lastNode ]
-              out: while (removeNodes.length > 0) {
-                const _removeNodes = removeNodes.splice(0, removeNodes.length)
-                for (const node of _removeNodes) {
-                  // 判断是否是选中节点
-                  if (node.id === selectedNodeId) {
-                    selected.value = null
-                    break out
-                  }
-                  // 遍历子节点
-                  node.children && removeNodes.push(...node.children)
+    deleteNode(position: { value: string }) {
+      recordHistory(
+        produceWithPatches(designData.value, draft => {
+          const { lastNodeParent, lastNode, lastIndex } = parsePathNode(draft, position.value)
+          lastNodeParent.children!.splice(lastIndex, 1)
+          // 判断移除的节点中是否包含了选中节点
+          const selectedNodeId = selected.value?.node.id
+          if (selectedNodeId !== undefined) {
+            const removeNodes = [ lastNode ]
+            out: while (removeNodes.length > 0) {
+              const _removeNodes = removeNodes.splice(0, removeNodes.length)
+              for (const node of _removeNodes) {
+                // 判断是否是选中节点
+                if (node.id === selectedNodeId) {
+                  selected.value = null
+                  break out
                 }
+                // 遍历子节点
+                node.children && removeNodes.push(...node.children)
               }
             }
-          })
-        )
-      }
+          }
+        })
+      )
     },
     /** 放置事件 */
     onDrop(dropPosition: string, monitor: Monitor) {
@@ -278,12 +300,14 @@ export function useFormDragContext() {
         })
       )
     },
+    /** 刷新选中的框框 */
+    refreshSelectFrame: null! as (node: DragNode | null | undefined) => void,
     /** 选择事件 */
     createSelect(position: { value: string }) {
-      return (e) => {
+      return (e: MouseEvent | any) => {
         e.stopPropagation()
         const { lastNode } = parsePathNode(designData.value, position.value)
-        selected.value = lastNode
+        provideData.refreshSelectFrame(lastNode)
       }
     }
   }
@@ -292,6 +316,38 @@ export function useFormDragContext() {
 
   return provideData
 
+}
+
+export const DesignNodeProps = {
+  node: {
+    type:     Object as PropType<DragNode>,
+    required: true as const
+  },
+  fatherPosition: {
+    type:     String,
+    required: true as const
+  },
+  index: {
+    type:     Number,
+    required: true as const
+  }
+}
+
+export const DRAG_CLASS = {
+  DRAGGING:        'dragging',
+  TOP:             'enter-top',
+  BOTTOM:          'enter-bottom',
+  CENTER:          'enter-center',
+  SELECT_NODE_BOX: 'select-node-box'
+}
+
+export const ACCEPT_TYPE = new Set([ NODE_TYPE.GRID, NODE_TYPE.FORM_CONTROL ])
+
+export function getPosition(props: { index: number, fatherPosition: string }) {
+  return computed(() => {
+    const { fatherPosition, index } = props
+    return `${fatherPosition ? fatherPosition + '.' : ''}${index}`
+  })
 }
 
 // let obj = { a: 0 }

@@ -1,9 +1,17 @@
 import type { IDragCoreConstructorParams } from './@types'
 import { DragDropBase } from './@types'
-import { isElement, createDragMonitor } from './utils'
+import { isElement, createDragMonitor, assign, EMPTY_OBJECT } from './utils'
 import { DESTROY_TIP, SUBSCRIBE_TIP, DROP_FLAG } from './utils/private'
 
 type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
+
+/** 存在hover方法 */
+const HOVER_STATE = {
+  CLASS: 0b01,
+  FUNC:  0b10,
+  NONE:  0b00,
+  ALL:   0b11
+}
 
 export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubbish> {
 
@@ -25,15 +33,26 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   _isSubscribe = false
   /** 样式 */
   _className!: DragClassName
+  /** 标识hover的状态 */
+  _hoverState!: number
 
   constructor(params: IDragCoreConstructorParams<Data, Rubbish>) {
     super()
-    this.params = params
-    this.config = params.config
     const { className, context, defaultDraggable } = params.config
-    this.context = context
-    this._className = className || {}
     this._draggable = defaultDraggable ?? true
+    const _className = className || EMPTY_OBJECT
+    assign(this, {
+      params,
+      config:      params.config,
+      context:     context,
+      _className,
+      _hoverState: (() => {
+        let initState = HOVER_STATE.NONE
+        _className['hover'] && (initState = initState | HOVER_STATE.CLASS)
+        params.hover && (initState = initState | HOVER_STATE.FUNC)
+        return initState
+      })()
+    })
   }
 
   /** 标识是否允许拖拽 */
@@ -77,10 +96,15 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   /** 修改样式 */
   _editClass = (operate: 'add' | 'remove', key: keyof DragClassName) => {
     const classValue = this._className[key]
-    if (classValue){
+    if (classValue) {
       const dom = this.context.dragPreventDom || this.dragDom
       dom.classList[operate](classValue)
     }
+  }
+
+  /** 是否存在hover */
+  _hasHover() {
+    return (this._hoverState & 0b11) > 0
   }
 
   subscribe = () => {
@@ -96,7 +120,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     ctx._dragItemDragStarts.add(this._dragItemDragStart)
     ctx._dragItemDragEnds.add(this._dragItemDragEnd)
     this._addHover()
-    this._className.hover && dragDom.addEventListener('mouseleave', this._mouseleave)
+    this._hasHover() && dragDom.addEventListener('mouseleave', this._mouseleave)
     dragDom.addEventListener('dragstart', this._dragStart)
     dragDom.addEventListener('drag', this._drag)
     dragDom.addEventListener('dragend', this._dragEnd)
@@ -111,7 +135,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       // 如果结束拖拽标识不为true，需要手动调用_dragEnd还原状态
       !this._isEnd && this._dragEnd(this.monitor.event)
       this._removeHover()
-      this._className.hover && dragDom.removeEventListener('mouseleave', this._mouseleave)
+      this._hasHover() && dragDom.removeEventListener('mouseleave', this._mouseleave)
       dragDom.removeEventListener('dragstart', this._dragStart)
       dragDom.removeEventListener('drag', this._drag)
       dragDom.removeEventListener('dragend', this._dragEnd)
@@ -122,21 +146,25 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     ctx._dragItemDragStarts.delete(this._dragItemDragStart)
   }
 
-  _mouseenter = () => {
+  _mouseenter = (e: MouseEvent) => {
     if (!this.context.dragDom && this._draggable) {
       this._isHover = true
-      this._editClass('add', 'hover')
+      if (this._hoverState & HOVER_STATE.CLASS) this._editClass('add', 'hover')
+      if (this._hoverState & HOVER_STATE.FUNC) {
+        this.monitor.event = e
+        this.params.hover!(this.monitor, this.context)
+      }
     }
   }
 
   _mouseleave = () => {
     if (this._isHover && this._draggable) {
       this._isHover = false
-      this._editClass('remove', 'hover')
+      if (this._hoverState & HOVER_STATE.CLASS) this._editClass('remove', 'hover')
     }
   }
 
-  _dragStart = (e: DragEvent) => {
+  _dragStart = (e: Event) => {
     const { monitor, context: ctx, params, config } = this
     // dragStart必须阻止冒泡，不然在多层嵌套下会出现问题
     e.stopPropagation()
@@ -150,7 +178,9 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     ctx.dragData = config.data?.()
     // 存储拖拽实例
     ctx.dragInstance = this
+    // @ts-ignore 一定会有clientX
     ctx.dragCoord.x = e.clientX
+    // @ts-ignore 一定会有clientX
     ctx.dragCoord.y = e.clientY
     // unSubscribe的时候要用
     this._isEnd = false
@@ -173,7 +203,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     this._editClass('add', 'dragging')
   }
 
-  _drag = (e: DragEvent) => {
+  _drag = (e: Event) => {
     this.monitor.event = e
     e.stopPropagation()
     const { context: ctx, prePosition } = this
@@ -190,7 +220,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     }
   }
 
-  _dragEnd = (e: DragEvent) => {
+  _dragEnd = (e: Event) => {
     const { monitor, params, context: ctx } = this
     // 把状态还原，不然组件卸载的时候，会多触发一次dragEnd方法
     this._isEnd = true
@@ -229,13 +259,13 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   }
 
   _addHover = () => {
-    if (this._className.hover && this.dragDom) {
+    if (this._hasHover() && this.dragDom) {
       this.dragDom.addEventListener('mouseenter', this._mouseenter)
     }
   }
 
   _removeHover = () => {
-    if (this._className.hover && this.dragDom) {
+    if (this._hasHover() && this.dragDom) {
       this.dragDom.removeEventListener('mouseenter', this._mouseenter)
     }
   }

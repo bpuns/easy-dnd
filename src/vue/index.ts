@@ -3,7 +3,8 @@ import {
   provide,
   onMounted,
   onBeforeUnmount,
-  defineComponent
+  defineComponent,
+  PropType
 } from 'vue'
 import {
   type IDnDProvider,
@@ -25,6 +26,7 @@ const DndProvider = defineComponent({
   name:  'DndProvider',
   props: {
     type: {
+      type:    String as PropType<DND_MODE>,
       default: DND_MODE.SWARAJ
     },
     delay: {
@@ -108,11 +110,16 @@ function useDragListen<Data, Rubbish>(params: IListenDragHooksParams<Data, Rubbi
   onBeforeUnmount(instance.unbind)
 }
 
+function useDnd<Rubbish>(){
+  return inject<IDnDProvider<any, Rubbish>>(DND_CTX)
+}
+
 export * from 'easy-dnd'
 
 export {
   Drag,
   Drop,
+  useDnd,
   useDrag,
   useDrop,
   DndProvider,

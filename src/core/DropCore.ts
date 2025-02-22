@@ -84,7 +84,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     classValue && this.dropDom?.classList[operate](classValue)
   }
 
-  canDrop = (e?: DragEvent) => {
+  canDrop = (e?: Event) => {
     const { dragPreventDom } = this.context
     // 如果dragPreventDom不存在，说明不是同一个上下文的拖拽，阻止拖拽
     if (!dragPreventDom) return false
@@ -112,11 +112,11 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     }
   }
 
-  stopPropagation = (e: DragEvent) => {
+  stopPropagation = (e: Event) => {
     if (this.context.dndMode === DND_MODE.SWARAJ) e.stopPropagation()
   }
 
-  _dragenter = (e: DragEvent) => {
+  _dragenter = (e: Event) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (this._stack++ === 0) {
@@ -141,7 +141,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     }
   }
 
-  _dragover = (e: DragEvent) => {
+  _dragover = (e: Event) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (this.isEnter) {
@@ -152,7 +152,9 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
         prePosition.x !== dragCoord.x ||
         prePosition.y !== dragCoord.y
       ) {
+        // @ts-ignore 一定会有这个属性
         prePosition.x = e.clientX
+        // @ts-ignore 一定会有这个属性
         prePosition.y = e.clientY
         this._execListen('dragOver', ctx)
         this.params.dragOver?.(this.monitor, ctx)
@@ -160,7 +162,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     }
   }
 
-  _dragleave = (e: DragEvent) => {
+  _dragleave = (e: Event) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     if (!--this._stack) {
@@ -179,7 +181,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     }
   }
 
-  _drop = (e: DragEvent) => {
+  _drop = (e: Event) => {
     this.stopPropagation(e)
     if (!this.canDrop(e)) return
     const ctx = this.context

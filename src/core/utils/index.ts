@@ -25,6 +25,11 @@ export function isElement(dom: unknown): dom is HTMLElement {
   return dom instanceof HTMLElement
 }
 
+/** 空对象 */
+export const EMPTY_OBJECT = Object.freeze({})
+/** assign */
+export const assign = Object.assign
+
 interface ProviderConfig {
   /** 拖拽类型，有 SCOPE 和 SWARAJ 两种可选 */
   dndMode?: DND_MODE,

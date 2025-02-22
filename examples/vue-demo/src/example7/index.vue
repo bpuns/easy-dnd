@@ -4,20 +4,20 @@
       <button :disabled="history.point === -1" @click="undo">撤销</button>
       <button :disabled="history.point === history.list.length - 1" @click="redo">重做</button>
     </div>
-    <div style="display: flex;">
+    <div class="design-plane" style="display: flex;">
       <div class="new-add-control">
         <NewControl :type="NODE_TYPE.GRID" />
         <NewControl :type="NODE_TYPE.FORM_CONTROL" />
       </div>
-      <div style="flex: 1;">
+      <div style="flex: 1">
         <Form :node="designData" />
       </div>
       <div class="property-config">
         <div v-if="selected">
-          <h3>正在编辑的控件：{{ selected.name }}</h3>
+          <h3>正在编辑的控件：{{ selected.node.name }}</h3>
           <label>
             名称：
-            <input v-model="selected.name">
+            <input v-model="selected.node.name">
           </label>
         </div>
       </div>
@@ -39,13 +39,17 @@ const {
   designData
 } = useFormDragContext()
 
-// 选中样式
-const style = document.createElement('style')
-onMounted(() => document.head.appendChild(style))
-onBeforeUnmount(() => document.head.removeChild(style))
-watchEffect(() => {
-  style.innerText = selected.value ? `.design-node[data-key="${selected.value.id}"] {background: #f0f0f0;}` : ''
+onMounted(() => {
+  document.querySelector('.design-plane > div:nth-child(2)')!.scrollTop = 100
 })
+
+// 选中样式
+// const style = document.createElement('style')
+// onMounted(() => document.head.appendChild(style))
+// onBeforeUnmount(() => document.head.removeChild(style))
+// watchEffect(() => {
+//   style.innerText = selected.value ? `.design-node[data-key="${selected.value.id}"] {background: #f0f0f0;}` : ''
+// })
 </script>
 
 <style lang="scss">
@@ -57,6 +61,19 @@ watchEffect(() => {
 
   >button {
     flex: 1;
+  }
+}
+
+.design-plane {
+  >div {
+    height: 400px;
+    box-sizing: border-box;
+    overflow: hidden auto;
+    border: 1px solid #000;
+  }
+
+  >div:nth-child(2) {
+    margin-top: 10px;
   }
 }
 
@@ -106,6 +123,22 @@ watchEffect(() => {
 
 .dragging {
   opacity: 0.1;
+}
+
+.select-node-box {
+  position: absolute;
+  z-index: 9;
+  pointer-events: none;
+
+  > div {
+    pointer-events: all;
+    position: absolute;
+    background: rgba(255, 0, 0, 0.1);
+    display: flex;
+    right: 0;
+    top: 0
+  }
+
 }
 
 .new-add-control {
