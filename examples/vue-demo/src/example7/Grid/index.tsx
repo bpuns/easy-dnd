@@ -1,7 +1,8 @@
+import type { RubbishData, DragData } from '../utils'
 import { useDrag, useDrop } from 'easy-dnd/vue'
 import { defineComponent } from 'vue'
 import { formFactory } from '../component'
-import { DesignNodeProps, useFormDesignContext, getPosition, DragData, RubbishData, NODE_TYPE, DRAG_CLASS, ACCEPT_TYPE, DIRECTION } from '../utils'
+import { DesignNodeProps, useFormDesignContext, getPosition, NODE_TYPE, DRAG_CLASS, ACCEPT_TYPE, DIRECTION } from '../utils'
 
 /** 网格 */
 export const Grid = defineComponent({
@@ -25,7 +26,7 @@ export const Grid = defineComponent({
         },
         data() {
           return {
-            dragNode:     props.node,
+            dragNode: props.node,
             dragPosition: currentPosition.value
           }
         }
@@ -66,7 +67,7 @@ export const Grid = defineComponent({
     return () => {
       return (
         <div
-          className='design-node'
+          class='design-node'
           ref={drop.dropRef}
           onClick={onSelect}
           data-position={currentPosition.value}

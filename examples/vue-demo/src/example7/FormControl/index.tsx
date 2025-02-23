@@ -1,6 +1,7 @@
+import type { RubbishData, DragData } from '../utils'
 import { useDrag, useDrop } from 'easy-dnd/vue'
 import { defineComponent } from 'vue'
-import { DesignNodeProps, useFormDesignContext, getPosition, DragData, RubbishData, NODE_TYPE, DRAG_CLASS, ACCEPT_TYPE, DIRECTION } from '../utils'
+import { DesignNodeProps, useFormDesignContext, getPosition, NODE_TYPE, DRAG_CLASS, ACCEPT_TYPE, DIRECTION } from '../utils'
 
 /** 表单控件 */
 export const FormControl = defineComponent({
@@ -24,12 +25,12 @@ export const FormControl = defineComponent({
           }
         }
       },
-      hover() {
-        console.log('hover', props.node)
-      },
-      leave() {
-        console.log('leave', props.node)
-      }
+      // hover() {
+      //   console.log('hover', props.node)
+      // },
+      // leave() {
+      //   console.log('leave', props.node)
+      // }
     })
 
     const drop = useDrop<DragData, RubbishData>({
@@ -62,7 +63,7 @@ export const FormControl = defineComponent({
 
     return () => (
       <div
-        className='design-node'
+        class='design-node'
         ref={dropDragRef}
         onClick={onSelect}
         data-position={currentPosition.value}

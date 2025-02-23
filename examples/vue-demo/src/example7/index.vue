@@ -26,7 +26,6 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, watchEffect } from 'vue'
 import { DndProvider } from 'easy-dnd/vue'
 import { Form, NewControl } from './component'
 import { NODE_TYPE, useFormDragContext } from './utils'
@@ -39,17 +38,6 @@ const {
   designData
 } = useFormDragContext()
 
-onMounted(() => {
-  document.querySelector('.design-plane > div:nth-child(2)')!.scrollTop = 100
-})
-
-// 选中样式
-// const style = document.createElement('style')
-// onMounted(() => document.head.appendChild(style))
-// onBeforeUnmount(() => document.head.removeChild(style))
-// watchEffect(() => {
-//   style.innerText = selected.value ? `.design-node[data-key="${selected.value.id}"] {background: #f0f0f0;}` : ''
-// })
 </script>
 
 <style lang="scss">

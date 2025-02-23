@@ -1,5 +1,5 @@
 import { h } from 'vue'
-import { DragNode, NODE_TYPE } from './utils'
+import { type DragNode, NODE_TYPE } from './utils'
 import { FormControl } from './FormControl'
 import { Grid } from './Grid'
 

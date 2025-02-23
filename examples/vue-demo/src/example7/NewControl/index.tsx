@@ -1,12 +1,13 @@
+import type { RubbishData, DragData, DragNode } from '../utils'
 import { useDrag } from 'easy-dnd/vue'
-import { defineComponent, PropType, shallowRef } from 'vue'
-import { NODE_TYPE, DragData, RubbishData, DRAG_CLASS, DragNode } from '../utils'
+import { defineComponent, type PropType, shallowRef } from 'vue'
+import { NODE_TYPE, DRAG_CLASS, } from '../utils'
 
 /** 新增 */
 export const NewControl = defineComponent({
   props: {
     type: {
-      type:     Number as PropType<NODE_TYPE>,
+      type: Number as PropType<NODE_TYPE>,
       required: true
     }
   },
@@ -16,22 +17,22 @@ export const NewControl = defineComponent({
 
     const drag = useDrag<DragData, RubbishData>({
       config: {
-        type:      props.type,
+        type: props.type,
         className: {
-          hover:    'hover',
+          hover: 'hover',
           dragging: DRAG_CLASS.DRAGGING
         },
         data() {
           const id = Math.random().toString(32).slice(2)
           const dragNode: DragNode = {
             id,
-            name:           name.value || `自动生成的${id}`,
+            name: name.value || `自动生成的${id}`,
             componentProps: {},
-            type:           props.type
+            type: props.type
           }
           props.type === NODE_TYPE.GRID && (dragNode.children = [])
           return {
-            isAdd:        true,
+            isAdd: true,
             dragNode,
             dragPosition: undefined!
           }
@@ -39,9 +40,13 @@ export const NewControl = defineComponent({
       }
     })
 
+    function onChange(e: Event){
+      name.value = (e.target as HTMLInputElement).value
+    }
+
     return () => (
       <div ref={drag.dragRef}>
-        <input type='text' placeholder='请输入名称' value={name.value} onChange={(e) => name.value = e.target.value} />
+        <input type='text' placeholder='请输入名称' value={name.value} onChange={onChange} />
         {props.type === NODE_TYPE.GRID ? '网格' : '表单控件'}
       </div>
     )

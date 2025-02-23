@@ -1,8 +1,8 @@
-import { defineComponent, onMounted, shallowRef, watch } from 'vue'
+import type { RubbishData, DragData } from '../utils'
+import { defineComponent, onMounted } from 'vue'
 import { useDnd, useDrop } from 'easy-dnd/vue'
 import { formFactory } from '../component'
-import { useFormDesignContext, RubbishData, DragData, DIRECTION, ACCEPT_TYPE, DesignNodeProps, DRAG_CLASS, DragNode, NODE_TYPE } from '../utils'
-import { Ref } from 'vue'
+import { useFormDesignContext, DIRECTION, ACCEPT_TYPE, DesignNodeProps, DRAG_CLASS, NODE_TYPE } from '../utils'
 
 /** 表单 */
 export const Form = defineComponent({
@@ -37,13 +37,11 @@ export const Form = defineComponent({
     return () => {
 
       return (
-        <>
-          <div className='design-node' ref={drop.dropRef} onClick={onSelect} style={{ minHeight: 'calc(100% - 20px)', boxSizing: 'border-box' }}>
-            <h2>表单容器</h2>
-            {props.node.children?.map((t, i) => formFactory(t, '', i))}
-            <SelectNode />
-          </div>
-        </>
+        <div class='design-node' ref={drop.dropRef} onClick={onSelect} style={{ minHeight: 'calc(100% - 20px)', boxSizing: 'border-box' }}>
+          <h2>表单容器</h2>
+          {props.node.children?.map((t, i) => formFactory(t, '', i))}
+          <SelectNode />
+        </div>
       )
     }
   }
@@ -78,22 +76,18 @@ const SelectNode = defineComponent({
         borderWidth = 2
 
       formDesignCtx.selected.value = {
-        node:          selectNode,
+        node: selectNode,
         clickIsForm,
         styleProperty: {
-          top:    `${clickDomRect.top - formRootRect.top - borderWidth}px`,
-          left:   `${clickDomRect.left - formRootRect.left - borderWidth}px`,
-          width:  `${clickDomRect.width - borderWidth / 2}px`,
+          top: `${clickDomRect.top - formRootRect.top - borderWidth}px`,
+          left: `${clickDomRect.left - formRootRect.left - borderWidth}px`,
+          width: `${clickDomRect.width - borderWidth / 2}px`,
           height: `${clickDomRect.height - borderWidth / 2}px`,
           border: `${borderWidth}px solid #63B931`
         }
       }
 
     }
-
-    // function hiddenSelectRect() {
-    //   // cursorDomRef.value.style.cssText = ''
-    // }
 
     function onDelete(e: MouseEvent) {
       e.stopPropagation()
@@ -107,7 +101,7 @@ const SelectNode = defineComponent({
       const selectInfo = formDesignCtx.selected.value
       if (!selectInfo) return null
       return (
-        <div className={DRAG_CLASS.SELECT_NODE_BOX} style={selectInfo.styleProperty}>
+        <div class={DRAG_CLASS.SELECT_NODE_BOX} style={selectInfo.styleProperty}>
           <div>
             <div>{selectInfo.node.name}</div>
             {selectInfo.clickIsForm || <button onClick={onDelete}>删除</button>}
