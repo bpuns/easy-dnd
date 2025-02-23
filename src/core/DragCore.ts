@@ -7,10 +7,11 @@ type DragClassName = IDragCoreConstructorParams<any, any>['config']['className']
 
 /** 存在hover方法 */
 const HOVER_STATE = {
-  CLASS: 0b01,
-  FUNC:  0b10,
-  NONE:  0b00,
-  ALL:   0b11
+  CLASS: 0b001,
+  LEAVE: 0b010,
+  FUNC:  0b100,
+  NONE:  0b000,
+  ALL:   0b111
 }
 
 export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubbish> {
@@ -50,6 +51,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
         let initState = HOVER_STATE.NONE
         _className['hover'] && (initState = initState | HOVER_STATE.CLASS)
         params.hover && (initState = initState | HOVER_STATE.FUNC)
+        params.leave && (initState = initState | HOVER_STATE.LEAVE)
         return initState
       })()
     })
@@ -104,7 +106,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
 
   /** 是否存在hover */
   _hasHover() {
-    return (this._hoverState & 0b11) > 0
+    return (this._hoverState & HOVER_STATE.ALL) > 0
   }
 
   subscribe = () => {
@@ -157,10 +159,14 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     }
   }
 
-  _mouseleave = () => {
+  _mouseleave = (e?: MouseEvent) => {
     if (this._isHover && this._draggable) {
       this._isHover = false
       if (this._hoverState & HOVER_STATE.CLASS) this._editClass('remove', 'hover')
+      if (this._hoverState & HOVER_STATE.LEAVE) {
+        e && (this.monitor.event = e)
+        this.params.leave!(this.monitor, this.context)
+      }
     }
   }
 

@@ -80,6 +80,11 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
     monitor: IDragCoreMonitor<Data, Rubbish>,
     context: IDnDProvider<Data, Rubbish>
   ) => any
+  /** 鼠标移开触发的方法 */
+  leave?: (
+    monitor: IDragCoreMonitor<Data, Rubbish>,
+    context: IDnDProvider<Data, Rubbish>
+  ) => any
   /** 配置 */
   config: {
     /** 当前拖拽元素的类型 */

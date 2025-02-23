@@ -38,7 +38,7 @@ export const Form = defineComponent({
 
       return (
         <>
-          <div className='design-node' ref={drop.dropRef} onClick={onSelect}>
+          <div className='design-node' ref={drop.dropRef} onClick={onSelect} style={{ minHeight: 'calc(100% - 20px)', boxSizing: 'border-box' }}>
             <h2>表单容器</h2>
             {props.node.children?.map((t, i) => formFactory(t, '', i))}
             <SelectNode />
@@ -95,7 +95,7 @@ const SelectNode = defineComponent({
     //   // cursorDomRef.value.style.cssText = ''
     // }
 
-    function onDelete(e: MouseEvent){
+    function onDelete(e: MouseEvent) {
       e.stopPropagation()
       const id = formDesignCtx.selected.value!.node.id
       // 找到索引
@@ -110,7 +110,7 @@ const SelectNode = defineComponent({
         <div className={DRAG_CLASS.SELECT_NODE_BOX} style={selectInfo.styleProperty}>
           <div>
             <div>{selectInfo.node.name}</div>
-            { selectInfo.clickIsForm || <button onClick={onDelete}>删除</button> }
+            {selectInfo.clickIsForm || <button onClick={onDelete}>删除</button>}
           </div>
         </div>
       )

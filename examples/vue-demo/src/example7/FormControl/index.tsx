@@ -23,10 +23,13 @@ export const FormControl = defineComponent({
             dragPosition: currentPosition.value
           }
         }
+      },
+      hover() {
+        console.log('hover', props.node)
+      },
+      leave() {
+        console.log('leave', props.node)
       }
-      // hover() {
-      //   console.log('hover', props.node)
-      // }
     })
 
     const drop = useDrop<DragData, RubbishData>({
