@@ -154,7 +154,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       if (this._hoverState & HOVER_STATE.CLASS) this._editClass('add', 'hover')
       if (this._hoverState & HOVER_STATE.FUNC) {
         this.monitor.event = e
-        this.params.hover!(this.monitor, this.context)
+        this.params.hover!(this.monitor, this.context, this)
       }
     }
   }
@@ -165,7 +165,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       if (this._hoverState & HOVER_STATE.CLASS) this._editClass('remove', 'hover')
       if (this._hoverState & HOVER_STATE.LEAVE) {
         e && (this.monitor.event = e)
-        this.params.leave!(this.monitor, this.context)
+        this.params.leave!(this.monitor, this.context, this)
       }
     }
   }
@@ -199,7 +199,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     _dragListen._ing = _dragListen._queue.filter(t => t.filter(ctx))
     this._execListen('dragStart', ctx)
     // 调用状态变化回调
-    params?.dragStart?.(monitor, ctx)
+    params?.dragStart?.(monitor, ctx, this)
     let itemDragStart: () => void
     // 调用所有dragItemDragStart函数
     for (itemDragStart of ctx._dragItemDragStarts) itemDragStart()
@@ -222,7 +222,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
       prePosition.x = dragCoord.x
       prePosition.y = dragCoord.y
       this._execListen('drag', ctx)
-      this.params?.drag?.(this.monitor, ctx)
+      this.params?.drag?.(this.monitor, ctx, this)
     }
   }
 
@@ -238,7 +238,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     })
     this._execListen('dragEnd', ctx)
     // 调用状态变化回调
-    params?.dragEnd?.(monitor, ctx)
+    params?.dragEnd?.(monitor, ctx, this)
     let itemDragEnd: () => void
     // 执行所有dndCtx的dragItems中的函数
     for (itemDragEnd of ctx._dragItemDragEnds) itemDragEnd()

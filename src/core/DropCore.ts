@@ -128,7 +128,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
         if (ctx.enterDom === this.dropDom) {
           this.isEnter = true
           this._execListen('dragEnter', ctx)
-          this.params.dragEnter?.(this.monitor, ctx)
+          this.params.dragEnter?.(this.monitor, ctx, this)
           this._editClass('add', 'dragEnter')
         }
       }
@@ -157,7 +157,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
         // @ts-ignore 一定会有这个属性
         prePosition.y = e.clientY
         this._execListen('dragOver', ctx)
-        this.params.dragOver?.(this.monitor, ctx)
+        this.params.dragOver?.(this.monitor, ctx, this)
       }
     }
   }
@@ -175,7 +175,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
           this.isEnter = false
           this._editClass('remove', 'dragEnter')
           this._execListen('dragLeave', ctx)
-          this.params.dragLeave?.(this.monitor, ctx)
+          this.params.dragLeave?.(this.monitor, ctx, this)
         }
       }
     }
@@ -188,7 +188,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     ctx.dropInstance = this
     this._editClass('remove', 'dragEnter')
     this._execListen('drop', ctx)
-    this.params.drop?.(this.monitor, ctx)
+    this.params.drop?.(this.monitor, ctx, this)
     // 清除放置实例
     setTimeout(() => ctx.dropInstance = null)
   }
@@ -198,7 +198,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     const { dragStart } = this.params
     this._canDrop = this.canDrop()
     if (!this._canDrop) return
-    dragStart?.(this.monitor, this.context)
+    dragStart?.(this.monitor, this.context, this)
     // 添加样式
     this._editClass('add', 'canDrop')
   }
@@ -208,7 +208,7 @@ export class DropCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     // 执行dragEnd回调
     const { dragEnd } = this.params
     if (dragEnd && this._canDrop) {
-      dragEnd?.(this.monitor, this.context)
+      dragEnd?.(this.monitor, this.context, this)
     }
     // 移除样式
     this._editClass('remove', 'canDrop')

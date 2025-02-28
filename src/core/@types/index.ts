@@ -63,27 +63,32 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
   /** 拖动开始触发的方法 */
   dragStart?: (
     monitor: IDragCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dragInstance: DragCore<Data, Rubbish>
   ) => any
   /** 拖动中触发的方法 */
   drag?: (
     monitor: IDragCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dragInstance: DragCore<Data, Rubbish>
   ) => any
   /** 拖动结束触发的方法 */
   dragEnd?: (
     monitor: IDragCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dragInstance: DragCore<Data, Rubbish>
   ) => any
   /** 鼠标移入触发的方法 */
   hover?: (
     monitor: IDragCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dragInstance: DragCore<Data, Rubbish>
   ) => any
   /** 鼠标移开触发的方法 */
   leave?: (
     monitor: IDragCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dragInstance: DragCore<Data, Rubbish>
   ) => any
   /** 配置 */
   config: {
@@ -122,32 +127,38 @@ interface IDropCoreConstructorParams<Data, Rubbish> {
   /** 外部元素进入this元素触发的方法 */
   dragEnter?: (
     monitor: IDropCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dropInstance: DropCore<Data, Rubbish>
   ) => any
   /** 外部元素在this元素中移动触发的方法 */
   dragOver?: (
     monitor: IDropCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dropInstance: DropCore<Data, Rubbish>
   ) => any
   /** 外部元素离开this元素触发的方法 */
   dragLeave?: (
     monitor: IDropCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dropInstance: DropCore<Data, Rubbish>
   ) => any
   /** 外部元素放置到this元素触发的方法 */
   drop?: (
     monitor: IDropCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dropInstance: DropCore<Data, Rubbish>
   ) => any
   /** acceptType里允许接收的元素开始拖拽的时候，会触发此方法 */
   dragStart?: (
     monitor: IDropCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dropInstance: DropCore<Data, Rubbish>
   ) => any
   /** acceptType里允许接收的元素结束拖拽的时候，会触发此方法 */
   dragEnd?: (
     monitor: IDropCoreMonitor<Data, Rubbish>,
-    context: IDnDProvider<Data, Rubbish>
+    context: IDnDProvider<Data, Rubbish>,
+    dropInstance: DropCore<Data, Rubbish>
   ) => any
   /** 配置 */
   config: {

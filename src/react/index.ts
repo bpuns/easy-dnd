@@ -223,11 +223,16 @@ function useDragListen<Data = {}, Rubbish = {}>(
 
 }
 
+function useDnd<Rubbish>(){
+  return useContext(DndContext) as IDnDProvider<any, Rubbish>
+}
+
 export * from 'easy-dnd'
 
 export {
   Drag,
   Drop,
+  useDnd,
   useDrag,
   useDrop,
   DndProvider,
