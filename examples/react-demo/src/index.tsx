@@ -53,7 +53,8 @@ function App() {
 }
 
 createRoot(document.querySelector('#root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+  // 请不要开启严格模式
+  // <StrictMode>
+  <App />
+  // </StrictMode>
 )
