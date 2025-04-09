@@ -103,8 +103,11 @@ interface IDragCoreConstructorParams<Data, Rubbish> {
       /** 该元素拖拽中触发添加的className */
       dragging?: string
     }
-    /** 获取阻止默认行为的节点dom，默认是 dragInstance.dragDom */
-    getPreventDom?: (monitor: IDragCoreMonitor<Data, Rubbish>, context: IDnDProvider<Data, Rubbish>) => HTMLElement | null
+    /** 获取拖拽的范围, 用于替代1.2.0中的getPreventDom方法，默认是 dragInstance.dragDom */
+    getScopeDom?: (
+      dragInstance: DragCore<Data, Rubbish>,
+      context: IDnDProvider<Data, Rubbish>
+    ) => HTMLElement | null
     /** 设置默认是否允许拖拽   true 允许拖拽 | false 不允许拖拽，默认是true */
     defaultDraggable?: boolean
     /** 拖拽作用域 */

@@ -82,6 +82,10 @@ const onChangeTab = (index: number) => {
   box-shadow: 0px 0px 5px 1px rgb(0, 0, 0, 1)
 }
 
+.hover-bg {
+  background-color: rgba(141, 85, 85, 0.2);
+}
+
 .dragging {
   opacity: 0.5;
 }

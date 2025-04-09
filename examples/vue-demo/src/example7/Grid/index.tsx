@@ -18,11 +18,12 @@ export const Grid = defineComponent({
         // 只想按住某个图标才能拖动，需要设置这个属性，用于告诉easy-dnd
         // 拖拽开始之后，用哪个dom阻止拖拽的默认行为
         // 如果不设置的话，默认取 drag.dragDom
-        getPreventDom(monitor) {
-          return monitor.dragDom.parentElement!
+        getScopeDom(dragInstance) {
+          return dragInstance.dragDom.parentElement!
         },
         className: {
-          dragging: DRAG_CLASS.DRAGGING
+          dragging: DRAG_CLASS.DRAGGING,
+          hover: DRAG_CLASS.HOVER
         },
         data() {
           return {
@@ -30,6 +31,12 @@ export const Grid = defineComponent({
             dragPosition: currentPosition.value
           }
         }
+      },
+      hover() {
+        // console.log('鼠标进入了')
+      },
+      leave() {
+        // console.log('鼠标移开了')
       }
     })
 
@@ -73,7 +80,7 @@ export const Grid = defineComponent({
           data-position={currentPosition.value}
           data-id={props.node.id}
         >
-          {/* 设置按住图标才能拖拽，需要配合 getPreventDom 使用，不然会有一些不可预料的bug出现 */}
+          {/* 设置按住图标才能拖拽，需要配合 getScopeDom 使用，不然会有一些不可预料的bug出现 */}
           <img src='/drag.svg' alt='drag' ref={drag.dragRef} style={{ width: '20px', height: '20px' }} />
           <span>{props.node.name}</span>
           {props.node.children?.map((t, i) => formFactory(t, currentPosition.value, i))}

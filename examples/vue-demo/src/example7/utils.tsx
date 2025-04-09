@@ -7,7 +7,6 @@ import {
   setAutoFreeze,
   applyPatches
 } from 'immer'
-import { useDnd } from 'easy-dnd/vue'
 import { nextTick } from 'vue'
 
 enablePatches()
@@ -73,13 +72,13 @@ function parsePathNode(node: DragNode, path: string): { lastNode: DragNode, last
   // 根节点
   if (path === '') {
     return {
-      lastNode:       node,
-      lastIndex:      0,
-      lastNodeParent: { children: [ node ] } as DragNode
+      lastNode: node,
+      lastIndex: 0,
+      lastNodeParent: { children: [node] } as DragNode
     }
   }
   const paths = path.split('.')
-  const nodeLinks: DragNode[] = [ node ]
+  const nodeLinks: DragNode[] = [node]
   const indexLinks: number[] = []
   for (const path of paths) {
     const index = Number(path)
@@ -90,31 +89,61 @@ function parsePathNode(node: DragNode, path: string): { lastNode: DragNode, last
   return {
     // nodeLinks,
     // indexLinks,
-    lastNode:       node,
-    lastIndex:      indexLinks.at(-1)!,
+    lastNode: node,
+    lastIndex: indexLinks.at(-1)!,
     lastNodeParent: nodeLinks.at(-2)!
   }
+}
+
+interface IBeforeCheckResult {
+  /** 插入节点在移除节点前面 */
+  isBefore: boolean,
+  /** 插入和移除节点是否在同一层级 */
+  sameLevel: boolean,
+  insertAtArr: number[],
+  removeAtArr: number[]
 }
 
 /** 如果a在b前面，返回true
  * @param insertAt   插入节点的坐标
  * @param removeAt   移除节点的坐标
- * @returns [ 插入节点在移除节点前面:boolean, 是否在同一层级：boolean ]
+ * @returns
  */
-function aIsBeforeB(insertAt: string, removeAt: string): [isBefore: boolean, sameLevel: boolean] {
-  const insertAtArr = insertAt.split('.')
-  const removeAtArr = removeAt.split('.')
-  const minSize = insertAtArr.length > removeAtArr.length ? removeAtArr.length : insertAtArr.length
+function aIsBeforeB(insertAt: string, removeAt: string): IBeforeCheckResult {
+  const insertAtArr = insertAt.split('.').map(n => Number(n))
+  const removeAtArr = removeAt.split('.').map(n => Number(n))
+  const minSize = Math.min(insertAtArr.length, removeAtArr.length)
   for (let i = 0; i < minSize; i++) {
     if (insertAtArr[i] === removeAtArr[i]) continue
-    return [
-      insertAtArr[i] < removeAtArr[i],
-      // 同层判断
-      i === insertAtArr.length - 1 && i === removeAtArr.length - 1
-    ]
+    return {
+      isBefore: insertAtArr[i] < removeAtArr[i],
+      // 同层判断（没有遍历完成，说明不是在同一个层级）
+      sameLevel: i === insertAtArr.length - 1 && i === removeAtArr.length - 1,
+      insertAtArr,
+      removeAtArr
+    }
   }
-  // 第一个是根节点
-  return [ true, false ]
+  // 根节点
+  return { isBefore: true, sameLevel: false, insertAtArr, removeAtArr }
+}
+
+/**
+ * 检查是否不需要推入历史栈
+ * @param param0      检查结果
+ * @param isBottom    是否是移到下方
+ */
+function checkStaySame({ isBefore, sameLevel, insertAtArr, removeAtArr }: IBeforeCheckResult, isBottom: boolean) {
+  if (sameLevel) {
+    // 比如 1 移动到了 0 的下方，那么不需要处理
+    if (isBefore && isBottom && insertAtArr.at(-1)! + 1 === removeAtArr.at(-1)!) {
+      return true
+    }
+    // 比如 0 移动到了 1 的上方，那么不需要处理
+    if (!isBefore && !isBottom && insertAtArr.at(-1) === removeAtArr.at(-1)! + 1) {
+      return true
+    }
+  }
+  return false
 }
 
 type Monitor = IDropCoreMonitor<DragData, RubbishData>
@@ -122,28 +151,28 @@ type Monitor = IDropCoreMonitor<DragData, RubbishData>
 export function useFormDragContext() {
 
   const designData = ref<DragNode>({
-    id:             'root',
-    name:           '表单',
-    type:           NODE_TYPE.FORM,
+    id: 'root',
+    name: '表单',
+    type: NODE_TYPE.FORM,
     componentProps: {},
-    children:       [
+    children: [
       {
-        id:             'a',
-        type:           NODE_TYPE.GRID,
-        name:           '网格布局1',
+        id: 'a',
+        type: NODE_TYPE.GRID,
+        name: '网格布局1',
         componentProps: {},
-        children:       [
+        children: [
           { id: 'a1', componentProps: {}, name: '输入框', type: NODE_TYPE.FORM_CONTROL },
           { id: 'a2', componentProps: {}, name: '多行文本', type: NODE_TYPE.FORM_CONTROL }
         ]
       },
       { id: 'b', name: '下拉框', componentProps: {}, type: NODE_TYPE.FORM_CONTROL },
       {
-        id:             'c',
-        name:           '网格布局2',
+        id: 'c',
+        name: '网格布局2',
         componentProps: {},
-        type:           NODE_TYPE.GRID,
-        children:       [
+        type: NODE_TYPE.GRID,
+        children: [
           { id: 'c1', componentProps: {}, name: '内部对象', type: NODE_TYPE.FORM_CONTROL },
           { id: 'c2', componentProps: {}, name: '富文本', type: NODE_TYPE.FORM_CONTROL }
         ]
@@ -163,14 +192,17 @@ export function useFormDragContext() {
 
   const history = shallowRef({
     /** 历史记录列表 */
-    list:  [] as { undo: Patch[], redo: Patch[] }[],
+    list: [] as { undo: Patch[], redo: Patch[] }[],
     /** 当前记录指针 */
     point: -1
   })
 
   /** 历史记录 */
   function recordHistory(record: unknown) {
-    const [ nextState, patches, inversePatches ] = record as [DragNode, Patch[], Patch[]]
+    const [nextState, patches, inversePatches] = record as [DragNode, Patch[], Patch[]]
+    // 没有发生变化，不需要推入历史记录
+    // immer如果数据没有发生改变，那么返回的对象就是原对象
+    if (nextState === designData.value) return
     const { list, point } = history.value
     list.splice(point + 1)
     list.push({ undo: inversePatches, redo: patches })
@@ -180,7 +212,7 @@ export function useFormDragContext() {
     // 确保 point 不超过 4
     history.value = { list, point: Math.min(point + 1, 4) }
     // 刷新位置
-    nextTick(()=>{
+    nextTick(() => {
       provideData.refreshSelectFrame(selected.value?.node)
     })
   }
@@ -236,7 +268,7 @@ export function useFormDragContext() {
           // 判断移除的节点中是否包含了选中节点
           const selectedNodeId = selected.value?.node.id
           if (selectedNodeId !== undefined) {
-            const removeNodes = [ lastNode ]
+            const removeNodes = [lastNode]
             out: while (removeNodes.length > 0) {
               const _removeNodes = removeNodes.splice(0, removeNodes.length)
               for (const node of _removeNodes) {
@@ -255,7 +287,7 @@ export function useFormDragContext() {
     },
     /** 放置事件 */
     onDrop(dropPosition: string, monitor: Monitor) {
-      const [ rubbishData, dragData ] = [ monitor.getRubbish(), monitor.getDragData() ]
+      const [rubbishData, dragData] = [monitor.getRubbish(), monitor.getDragData()]
       // 获取放置位置
       const direction = rubbishData.direction === undefined ? DIRECTION.CENTER : rubbishData.direction,
         // 是否是新增节点
@@ -270,28 +302,45 @@ export function useFormDragContext() {
             lastNodeParent.children!.splice(lastIndex, 1)
           }
 
+          // 是否同级操作
+          let _sameLevel = false,
+            // 是否拖拽到上方
+            _isBefore = false
+
           if (!isAdd) {
             // 新增节点不需要删除
-            const [ isBefore, sameLevel ] = aIsBeforeB(dropPosition, dragData.dragPosition)
+            const beforeCheckResult = aIsBeforeB(dropPosition, dragData.dragPosition)
+            const { isBefore, sameLevel } = beforeCheckResult
+            // 不需要处理
+            if (checkStaySame(beforeCheckResult, direction === DIRECTION.BOTTOM)) return
             // 插入的节点在删除节点前面 或者 插入和删除都在同一层级，那么就得先删除
             if (sameLevel || isBefore) {
               removeOperate()!
               removeOperate = null!
             }
+            [_sameLevel, _isBefore] = [sameLevel, isBefore]
           }
 
           const { lastNode, lastNodeParent, lastIndex } = parsePathNode(draft, dropPosition)
 
           switch (direction) {
             case DIRECTION.TOP:
-              lastNodeParent.children!.splice(lastIndex, 0, dragData.dragNode)
+              lastNodeParent.children!.splice(
+                lastIndex - (_sameLevel && !_isBefore ? 1 : 0),
+                0,
+                dragData.dragNode
+              )
               break
             case DIRECTION.CENTER:
               lastNode.children!.push(dragData.dragNode)
               // console.log(current(lastNode.children))
               break
             case DIRECTION.BOTTOM:
-              lastNodeParent.children!.splice(lastIndex + 1, 0, dragData.dragNode)
+              lastNodeParent.children!.splice(
+                lastIndex + (_sameLevel ? (_isBefore ? 1 : 0) : 1),
+                0,
+                dragData.dragNode
+              )
               break
           }
 
@@ -320,28 +369,29 @@ export function useFormDragContext() {
 
 export const DesignNodeProps = {
   node: {
-    type:     Object as PropType<DragNode>,
+    type: Object as PropType<DragNode>,
     required: true as const
   },
   fatherPosition: {
-    type:     String,
+    type: String,
     required: true as const
   },
   index: {
-    type:     Number,
+    type: Number,
     required: true as const
   }
 }
 
 export const DRAG_CLASS = {
-  DRAGGING:        'dragging',
-  TOP:             'enter-top',
-  BOTTOM:          'enter-bottom',
-  CENTER:          'enter-center',
+  DRAGGING: 'dragging',
+  HOVER: 'hover-bg',
+  TOP: 'enter-top',
+  BOTTOM: 'enter-bottom',
+  CENTER: 'enter-center',
   SELECT_NODE_BOX: 'select-node-box'
 }
 
-export const ACCEPT_TYPE = new Set([ NODE_TYPE.GRID, NODE_TYPE.FORM_CONTROL ])
+export const ACCEPT_TYPE = new Set([NODE_TYPE.GRID, NODE_TYPE.FORM_CONTROL])
 
 export function getPosition(props: { index: number, fatherPosition: string }) {
   return computed(() => {

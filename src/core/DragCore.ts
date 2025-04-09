@@ -18,6 +18,8 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
 
   /** 用于绑定drag的dom函数 */
   dragDom!: HTMLElement
+  /** 真实的拖拽范围的dom */
+  scopeDom!: HTMLElement
   /** params */
   params!: IDragCoreConstructorParams<Data, Rubbish>
   /** params中的配置 */
@@ -99,8 +101,7 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   _editClass = (operate: 'add' | 'remove', key: keyof DragClassName) => {
     const classValue = this._className[key]
     if (classValue) {
-      const dom = this.context.dragPreventDom || this.dragDom
-      dom.classList[operate](classValue)
+      this.scopeDom.classList[operate](classValue)
     }
   }
 
@@ -121,8 +122,10 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     this._isSubscribe = true
     ctx._dragItemDragStarts.add(this._dragItemDragStart)
     ctx._dragItemDragEnds.add(this._dragItemDragEnd)
+    // 获取拖拽范围的dom
+    this.scopeDom = this.config.getScopeDom?.(this, this.context) || this.dragDom
     this._addHover()
-    this._hasHover() && dragDom.addEventListener('mouseleave', this._mouseleave)
+    this._hasHover() && this.scopeDom.addEventListener('mouseleave', this._mouseleave)
     dragDom.addEventListener('dragstart', this._dragStart)
     dragDom.addEventListener('drag', this._drag)
     dragDom.addEventListener('dragend', this._dragEnd)
@@ -131,13 +134,13 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
 
   unSubscribe = () => {
     if (!this._isSubscribe) return
-    const { dragDom, context: ctx } = this
+    const { dragDom, scopeDom, context: ctx } = this
     if (dragDom) {
       this._toggleDraggable(this._draggable = this._isSubscribe = false)
       // 如果结束拖拽标识不为true，需要手动调用_dragEnd还原状态
       !this._isEnd && this._dragEnd(this.monitor.event)
       this._removeHover()
-      this._hasHover() && dragDom.removeEventListener('mouseleave', this._mouseleave)
+      this._hasHover() && scopeDom.removeEventListener('mouseleave', this._mouseleave)
       dragDom.removeEventListener('dragstart', this._dragStart)
       dragDom.removeEventListener('drag', this._drag)
       dragDom.removeEventListener('dragend', this._dragEnd)
@@ -176,18 +179,18 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
     e.stopPropagation()
     monitor.event = e
     // 存储状态到全局
-    ctx.dragType = config.type
-    ctx.dragDom = monitor.dragDom = this.dragDom
-    ctx.dragPreventDom = config.getPreventDom?.(monitor, ctx) || this.dragDom
-    ctx.dropInstance = null
-    // 存储拖拽数据
-    ctx.dragData = config.data?.()
-    // 存储拖拽实例
-    ctx.dragInstance = this
-    // @ts-ignore 一定会有clientX
-    ctx.dragCoord.x = e.clientX
-    // @ts-ignore 一定会有clientX
-    ctx.dragCoord.y = e.clientY
+    assign(ctx, {
+      dragType:       config.type,
+      dragDom:        monitor.dragDom = this.dragDom,
+      dragPreventDom: this.scopeDom,
+      dropInstance:   null,
+      // 存储拖拽数据
+      dragData:       config.data?.(),
+      // 存储拖拽实例
+      dragInstance:   this
+    })
+    // @ts-ignore 一定会有clientX 和 clientY
+    assign(ctx.dragCoord, { x: e.clientX, y: e.clientY })
     // unSubscribe的时候要用
     this._isEnd = false
     // 如果当前drag元素等于drop元素，把子节点下所有元素改为 pointer-events: none 
@@ -265,14 +268,14 @@ export class DragCore<Data = any, Rubbish = any> extends DragDropBase<Data, Rubb
   }
 
   _addHover = () => {
-    if (this._hasHover() && this.dragDom) {
-      this.dragDom.addEventListener('mouseenter', this._mouseenter)
+    if (this._hasHover() && this.scopeDom) {
+      this.scopeDom.addEventListener('mouseenter', this._mouseenter)
     }
   }
 
   _removeHover = () => {
-    if (this._hasHover() && this.dragDom) {
-      this.dragDom.removeEventListener('mouseenter', this._mouseenter)
+    if (this._hasHover() && this.scopeDom) {
+      this.scopeDom.removeEventListener('mouseenter', this._mouseenter)
     }
   }
 

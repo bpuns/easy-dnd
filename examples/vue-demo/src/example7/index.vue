@@ -54,7 +54,7 @@ const {
 
 .design-plane {
   >div {
-    height: 400px;
+    height: 600px;
     box-sizing: border-box;
     overflow: hidden auto;
     border: 1px solid #000;
