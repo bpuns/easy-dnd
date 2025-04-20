@@ -307,7 +307,7 @@ export function useFormDragContext() {
             // 是否拖拽到上方
             _isBefore = false
 
-          if (!isAdd) {
+          if (!isAdd && direction !== DIRECTION.CENTER) {
             // 新增节点不需要删除
             const beforeCheckResult = aIsBeforeB(dropPosition, dragData.dragPosition)
             const { isBefore, sameLevel } = beforeCheckResult
