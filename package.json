@@ -1,6 +1,6 @@
 {
   "name": "easy-dnd",
-  "version": "1.3.0-beta1",
+  "version": "1.3.0-beta2",
   "scripts": {
     "dev": "node ./scripts/index.mjs dev",
     "build": "node ./scripts/index.mjs build",
